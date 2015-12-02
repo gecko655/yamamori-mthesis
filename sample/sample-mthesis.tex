@@ -1,0 +1,51 @@
+\documentclass[a4paper]{jsbook}
+%\documentclass[a4paper,oneside]{jsbook} % 片面刷りの場合は oneside を追加
+%\documentclass[a4paper,openany]{jsbook} % 章末の白紙ページを省きたいとき
+
+\usepackage[sort]{cite}              % 参考文献のソート
+
+\usepackage[mthesis,draft]{salab}    % 草稿では draft を追加
+%\usepackage[mthesis]{salab}         % 本番はこっち
+
+
+\title{ソフトウェア工学の研究}
+\author{名字 名前}
+\authorintitle{名~~字~~~~~名~~前} % 表示用
+\date{平成21年1月}
+\nendo{平成20}
+\studentid{0xMxxxxx}
+\advisor{佐伯 元司 教授}
+\affiliation{大学院情報理工学研究科 計算工学専攻}
+
+\begin{document}
+
+\frontmatter
+\maketitle
+\include{abstract}
+\tableofcontents
+\listoffigures
+\listoftables
+
+\mainmatter
+% 章番号が決まったらファイル名に連番を振っても良いし，
+% include せずにすべてをこのファイルに含めても良い．
+\include{introduction}
+%\include{background}
+%\include{relatedwork}
+%\include{approach}
+%\include{tool}
+%\include{casestudy}
+%\include{discussion}
+\include{conclusion}
+
+\appendix
+%\chapter{付録A}
+%\chapter{付録B}
+
+\backmatter
+\include{acknowledgement}
+\bibliographystyle{junsrt}
+\bibliography{bibtex/references}
+% 最終稿段階で .bbl に細かい修正を入れること．
+
+\end{document}

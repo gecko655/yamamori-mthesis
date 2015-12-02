@@ -1,0 +1,68 @@
+# LaTeX Makefile / required GNU make
+
+MAIN	= yamamori-mthesis
+
+TEX		= $(wildcard *.tex)
+STY		= $(wildcard *.sty)
+DVI		= $(MAIN).dvi
+PS		= $(MAIN).ps
+PDF		= $(MAIN).pdf
+
+CHECK	= grep 'LaTeX Warning: Label(s) may have changed.' $(MAIN).log >/dev/null
+RETRY	= $(CHECK) && platex $(MAIN).tex
+
+default: $(DVI) bib $(DVI)
+
+re: touch default
+
+touch:
+	touch $(MAIN).tex
+
+# 掃除系
+clean:
+	-rm *.aux *.lof *.log *.lot *.toc
+	-rm *.pbm *.bmc
+distclean: clean
+	-rm $(DVI)
+	-rm $(PS) $(PS).Z $(PS).gz
+	-rm $(PDF)
+
+# 登録系
+commit:
+	-svn commit -m -
+
+bib:
+	jbibtex $(MAIN)
+
+rebuild:
+	-@platex $(MAIN).tex
+	-@jbibtex $(MAIN)
+	-@$(RETRY) && $(RETRY) && $(RETRY)
+
+# 表示系
+xdvi: $(DVI)
+	dviout $(DVI) &
+gv:	$(PS)
+	gv $(PS) &
+lpr: $(PS)
+	lpr $(PS)
+
+# 生成系
+$(DVI): $(TEX) $(STY) $(MAIN).bbl
+	platex $(MAIN).tex
+	-@ $(RETRY) && $(RETRY) && $(RETRY)
+$(PS): $(DVI)
+	# Pbi は Times 等の基本フォントはプリンタフォントを使うようにするやつ．
+	dvipsk -Pbi $<
+$(PS).gz: $(PS)
+	gzip --best --stdout $< > $@
+$(PS).Z: $(PS)
+	gzip --best --stdout $< > $@
+$(PDF): $(DVI)
+	dvipdfmx -o $@ $<
+
+# 横着系 :p
+dvi: $(DVI)
+ps: $(PS)
+pdf: $(PDF)
+psz: $(PS).Z
