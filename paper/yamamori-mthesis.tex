@@ -1,0 +1,48 @@
+\documentclass[a4paper]{jsbook}
+%\documentclass[a4paper,oneside]{jsbook} % 片面刷りの場合は oneside を追加
+%\documentclass[a4paper,openany]{jsbook} % 章末の白紙ページを省きたいとき
+
+\usepackage[sort]{cite}              % 参考文献のソート
+
+\usepackage[mthesis,draft]{salab}    % 草稿では draft を追加
+%\usepackage[mthesis]{salab}         % 本番はこっち
+
+
+\title{細粒度操作履歴の分析に基づく\\開発行動推薦}
+\author{山森 章弘}
+\authorintitle{山~~森~~~~~章~~弘} % 表示用
+\date{平成28年1月}
+\nendo{平成27}
+\studentid{14M38439}
+\advisor{小林 隆志 准教授}
+\affiliation{大学院情報理工学研究科 計算工学専攻}
+
+\begin{document}
+
+\frontmatter
+\maketitle
+
+\chapter*{概要}
+本論文では，...
+
+\chapter*{Abstract}
+This dissertation studies ...
+
+\tableofcontents
+\listoffigures
+\listoftables
+
+\mainmatter
+% 章番号が決まったらファイル名に連番を振っても良いし，
+% include せずにすべてをこのファイルに含めても良い．
+
+\appendix
+%\chapter{付録A}
+%\chapter{付録B}
+
+\backmatter
+\bibliographystyle{junsrt}
+\bibliography{bibtex/citation}
+% 最終稿段階で .bbl に細かい修正を入れること．
+
+\end{document}
