@@ -7,6 +7,7 @@
 \usepackage[mthesis,draft]{salab}    % 草稿では draft を追加
 %\usepackage[mthesis]{salab}         % 本番はこっち
 
+\hyphenpenalty=10000
 
 \title{細粒度操作履歴の分析に基づく\\開発行動推薦}
 \author{山森 章弘}
@@ -169,6 +170,10 @@ Mylynの操作履歴はMylyn自身の開発プロジェクトで2007年から記
 
 T. Leeら\cite{TLee:2011}はMylynの粗粒度操作履歴を用いた最初の研究を行なった。
 彼らは操作履歴をmicro interaction metrics (MIMs)を計算するために利用し、MIMsによって欠陥予測の精度を向上させた。
+Blincoeら\cite{Blincoe:2012}はMylynの粗粒度操作履歴を用いて開発者とタスクとの近接度({\it proximity})を求めた。
+Robbesら\cite{Robbes:2013}とRicardら\cite{Silva:2015}らも同様にMylynの粗粒度操作履歴から開発者の専門度メトリクスを求めた。
+\cite{Blincoe:2012,Robbes:2013,Silva:2015}によってMylynの操作履歴は開発者をタスクに振り分ける際に有効であることが示された。
+
 Zanjaniら\cite{Zanjani:2014}は、変更リクエスト上でテキストマイニング手法を適用し、
 Mylynの粗粒度操作履歴のバグ説明文と改版履歴のコミットメッセージを突き合わせることで機能捜索(feature location)を行った。
 彼らは、改版履歴とMylynの粗粒度操作履歴の両方を使うことで機能捜索を効率的に行えることを示した。
