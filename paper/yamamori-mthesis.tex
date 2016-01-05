@@ -191,14 +191,27 @@ S. Leeら\cite{SLee:2015}はMylynの粗粒度操作履歴から相関ルール�
 しかし、実際にはeditイベントは開発者がコードを見るだけで発生し、コードが変更されたかどうかとは関係がないため、この点について正しく解釈した研究が必要とされている。
 
 \chapter{Mylynの操作履歴}\label{mylyn_chap}
+Mylyn\cite{Kersten:2005}はタスクマネージメントツールであり、Eclipseプラグインとして実装されている。
+Mylynの主な機能はタスクに関係するファイルを集約することだが、この機能に付随して、タスクが有効化されている間、開いたファイルの情報やカーソルの移動の情報等を操作イベントとして記録し、XML形式のログファイルに出力する機能がある。
+本稿では、このログファイルのことを``Mylynログ"と呼び、あるタスクを実行中に記録された操作の列を``セッション"、セッションの列を``（Mylynの）操作履歴"と呼ぶ。
+また、それぞれのセッションに含まれる1つの操作を``操作イベント"と呼ぶ。
+
+MylynプロジェクトはイシュートラッキングシステムであるBugzilla\footnote{\url{https://bugs.eclipse.org/bugs/}}を利用している。
+MylynプロジェクトのすべてのコミッターはMylynを用いてBugzillaにMylynログをアップロードする義務を負っているため\footnote{\url{https://wiki.eclipse.org/Mylyn/Contributor_Reference\#Using_Mylyn}}、Mylynログは2007年からBugzilla上にアップロードされ続け、現存する最も長期間の操作履歴となっている。
+
+操作イベントはXMLの要素で表され、{\it Kind}、{\it StructureHandle}などの属性が存在する。
+以下の節ではそれぞれの属性について詳しく説明する。
+
 \section{Kind}\label{kind_sec}
 \section{StructureHandle}
 \section{Date}
+\section{Interest}
+\section{NumEvent}
 \chapter{Mylynの操作履歴を細粒度にする拡張}
 \section{概要}
 \section{設計}
 \section{実行例}
-\chapter{提案手法}
+\chapter{Mylynの操作履歴による変更推薦手法}
 \section{概要}
 \section{操作履歴の取得}
 \section{改版履歴と操作履歴の結合}
