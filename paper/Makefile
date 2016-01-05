@@ -10,7 +10,10 @@ TEXS = $(MAIN) $(BIBTEX)
 
 IMG = resource
 
-main: $(TEXS) $(IMG)/*
+main: mk
+	$(OPEN) $(MAINBASENAME).pdf
+
+mk: $(TEXS) $(IMG)/*
 	find $(IMG) -name "*.jpg" | xargs $(EBB)
 	find $(IMG) -name "*.png" | xargs $(EBB)
 	find $(IMG) -name "*.pdf" | xargs $(EBB)
@@ -20,8 +23,6 @@ $(IMG):
 
 $(BIBTEX):
 
-open: main
-	$(OPEN) $(MAINBASENAME).pdf
 
 clean: 
 	rm $(MAINBASENAME).log 

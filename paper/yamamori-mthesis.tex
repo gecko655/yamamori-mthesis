@@ -7,6 +7,7 @@
 \usepackage[mthesis,draft]{salab}    % 草稿では draft を追加
 %\usepackage[mthesis]{salab}         % 本番はこっち
 
+
 \hyphenpenalty=10000
 
 \title{細粒度操作履歴の分析に基づく\\開発行動推薦}
@@ -192,7 +193,7 @@ S. Leeら\cite{SLee:2015}はMylynの粗粒度操作履歴から相関ルール�
 
 \chapter{Mylynの操作履歴}\label{mylyn_chap}
 Mylyn\cite{Kersten:2005}はタスクマネージメントツールであり、Eclipseプラグインとして実装されている。
-Mylynの主な機能はタスクに関係するファイルを集約することだが、この機能に付随して、タスクが有効化されている間、開いたファイルの情報やカーソルの移動の情報等を操作イベントとして記録し、XML形式のログファイルに出力する機能がある。
+Mylynの主な機能はタスクに関係するファイルを集約することだが、この機能に付随して、タスクが活性化されている間、開いたファイルの情報やカーソルの移動の情報等を操作イベントとして記録し、XML形式のログファイルに出力する機能がある。
 本稿では、このログファイルのことを``Mylynログ"と呼び、あるタスクを実行中に記録された操作の列を``セッション"、セッションの列を``（Mylynの）操作履歴"と呼ぶ。
 また、それぞれのセッションに含まれる1つの操作を``操作イベント"と呼ぶ。
 
@@ -203,8 +204,43 @@ MylynプロジェクトのすべてのコミッターはMylynを用いてBugzill
 以下の節ではそれぞれの属性について詳しく説明する。
 
 \section{Kind}\label{kind_sec}
+{\it Kind}属性はすべての操作イベントに対して記録され、イベントの種類を表している。
+{\it Kind}のリストを表\ref{kind_table}に表す。
+表に含まれる{\it Kind}のうち、``command"、``preference"、``attention"の3つは、Mylynが内部的に持っているのみでファイルには書き出されない。
+
+先行研究\cite{6233415,KatoJapanese:2011,ss2012-76,ss2013-84,Yamamori:2016}の手法では変更を伴う操作と変更を伴わない操作を区別する必要があるが、Mylynログにはこの情報が記録されていないため、Mylynログをこれらの手法に適用することは出来ない（図 \ref{mylyn_interaction}）。
+
+本稿においては、エディタのカーソル位置を開発者が閲覧しているコードとみなせることから、{\it Kind}が``edit"であるような操作イベントは開発者がコードを閲覧していると解釈し、そのような操作イベントを利用して開発者が閲覧しているコードを特定する。
+また、{\it Kind}が``edit"以外である操作イベントは本稿では利用しない。
+
+\begin{table}[tb]
+  \centering
+  \caption{Mylynによって記録される{\it Kind}の一覧}
+  \label{kind_table}
+\begin{tabular}{ll}
+  \hline
+  Kind & 概要\\
+  \hline
+  selection & ファイルオープン、タブ切り替え\\
+  edit & エディタ上でのカーソル位置 （コードをエディットしたかどうかを問わない）\\
+  propagation & パッケージエクスプローラー上での成果物名のクリック操作\\
+  command & ボタンのクリック、 キーショートカットの実行など\\
+  preference & ワークベンチの設定の変更\\
+  prediction & 開発者が行う可能性のある操作の予測\cite{kersten:2006}\\
+  manipulation & Mylynのタスクコンテクストに手動で成果物を追加する操作\\
+  attention & タスクの活性化と非活性化\\
+  \hline
+\end{tabular}
+\end{table}
+
 \section{StructureHandle}
 \section{Date}
+\begin{figure}[tb]
+  \centering
+  \includegraphics[width = \linewidth]{resource/mylyn_interaction.pdf}
+  \caption{Mylynで記録される操作イベントの概略}
+  \label{mylyn_interaction}
+\end{figure}
 \section{Interest}
 \section{NumEvent}
 \chapter{Mylynの操作履歴を細粒度にする拡張}
