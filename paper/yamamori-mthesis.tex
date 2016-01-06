@@ -7,6 +7,9 @@
 \usepackage[mthesis,draft]{salab}    % 草稿では draft を追加
 %\usepackage[mthesis]{salab}         % 本番はこっち
 
+\usepackage{comment}
+
+\def\ra{\rightarrow}
 
 \hyphenpenalty=10000
 
@@ -226,28 +229,55 @@ MylynプロジェクトのすべてのコミッターはMylynを用いてBugzill
   propagation & パッケージエクスプローラー上での成果物名のクリック操作\\
   command & ボタンのクリック、 キーショートカットの実行など\\
   preference & ワークベンチの設定の変更\\
-  prediction & 開発者が行う可能性のある操作の予測\cite{kersten:2006}\\
+  prediction & 開発者が行う可能性のある操作の予測\cite{Kersten:2006}\\
   manipulation & Mylynのタスクコンテクストに手動で成果物を追加する操作\\
   attention & タスクの活性化と非活性化\\
   \hline
 \end{tabular}
 \end{table}
 
-\section{StructureHandle}
 \section{Date}
+操作イベントには、"{\it StartDate}","{\it EndDate}"の2つの時間に関する属性がある。
+これらはそれぞれ、タスクを活性化させている期間全体での最初のタイムスタンプと最後タイムスタンプを表現している。
+操作履歴がMylynログに出力される際、開発者の操作は、成果物名と{\it Kind}の組に対して1つの操作イベントに集約される(図\ref{mylyn_interaction})。
+この集約機能により、開発者が実際に成果物を閲覧した正確な時間や順序の情報は欠落してしまい、復元することができなくなる。
+図\ref{mylyn_interaction}を例にとり、開発者が「$A\ra C \ra A \ra B \ra C \ra A$」の順にファイルを閲覧した場合を考える。
+この場合、Mylynログにはそれぞれの成果物を閲覧した最初の時刻と最後の時刻が{\it StartDate},{\it EndDate}であり{\it Kind}が``edit"であるような操作イベントが記録される。
+この操作イベントから、もとの閲覧順序を復元することはできなくなっている。
+したがって、成果物への操作の順序が重要である先行研究\cite{6233415,KatoJapanese:2011,ss2012-76,ss2013-84,Yamamori:2016}の手法にMylynの操作履歴を適用することは出来ない。
 \begin{figure}[tb]
   \centering
   \includegraphics[width = \linewidth]{resource/mylyn_interaction.pdf}
   \caption{Mylynで記録される操作イベントの概略}
   \label{mylyn_interaction}
 \end{figure}
+\section{StructureHandle}
+{\it StructureHandle}は操作イベント発生時に操作されたソフトウェア成果物を表す属性であり、すべての操作イベントに記録される。
+{\it StructureHandle}には、``Java要素"、``jarファイルに含まれるJava要素"、``その他の要素"の3つの種類が存在する。
+これらの3つの種類の成果物は、{\it StructureHandle}の文字列表現のフォーマットがそれぞれ異なる。
+
+Java要素についてはMylynのオリジナルのフォーマッティングルールが適用され、プロジェクト、パッケージ、ファイル、クラス、メソッド、フィールドのうちのいずれかの粒度で記録される。
+例えば、``=W/src$<$X\{Y.java[Y$\sim$z$\sim$I"という{\it StructureHandle}を考える。
+\begin{comment}
+]%Vimプラグインが暴れないためのおまじない
+\end{comment}
+これは、「{\it z(int arg)}」という名前のメソッドが操作されたことと、このメソッドが、「{\it W}プロジェクトの中の{\it src}というソールフォルダ内にある{\it X}パッケージの{\it Y.java}というソースファイルの{\it Y}クラス」内にあることを示す。
+引数の{\it I}の部分はEclipseのSignatureシンタックス\footnote{\url{help.eclipse.org/mars/topic/org.eclipse.jdt.doc.isv/reference/api/org/eclipse/jdt/core/Signature.html}}である。
+jarファイルに含まれるJava要素については、通常のJava要素と似たフォーマッティングルールで記録される。
+その他のファイルについては、プロジェクトルートの相対パスが"/"区切りでそのまま記録される。
+本稿では、\ref{experiment_chap}章の実験においては、{\it StructureHandle}が通常のJava要素を表し、かつファイルレベルまたはメソッドレベルであるような操作イベントのみを用いる。
 \section{Interest}
+Interestとは、Mylynエンジンが計算する成果物に対する開発者の興味の度合い(Degree of Interest, DoI)であり\cite{Kersten:2006}、少なくともMylynの最初のメジャーリリースより前の時点で実装されたものである。
+この属性は、対象とする成果物を操作するたびに急激に増加し、対象とする成果物以外を操作するとゆるやかに減少するような指標であり、
+「タスクに関係する成果物の集約」というMylynの主機能の実現のために使われている。
 \section{NumEvent}
+NumEventは、集約した操作イベントの個数を表す数値であり、Mylyn 3.0.3で導入された。
+
 \chapter{Mylynの操作履歴を細粒度にする拡張}
 \section{概要}
 \section{設計}
 \section{実行例}
-\chapter{Mylynの操作履歴による変更推薦手法}
+\chapter{Mylynの操作履歴による変更推薦手法}\label{experiment_chap}
 \section{概要}
 \section{操作履歴の取得}
 \section{改版履歴と操作履歴の結合}
