@@ -262,16 +262,20 @@ Java要素についてはMylynのオリジナルのフォーマッティング�
 ]%Vimプラグインが暴れないためのおまじない
 \end{comment}
 これは、「{\it z(int arg)}」という名前のメソッドが操作されたことと、このメソッドが、「{\it W}プロジェクトの中の{\it src}というソールフォルダ内にある{\it X}パッケージの{\it Y.java}というソースファイルの{\it Y}クラス」内にあることを示す。
-引数の{\it I}の部分はEclipseのSignatureシンタックス\footnote{\url{help.eclipse.org/mars/topic/org.eclipse.jdt.doc.isv/reference/api/org/eclipse/jdt/core/Signature.html}}である。
+引数の{\it I}の部分はEclipseのSignatureシンタックス\footnote{\url{http://help.eclipse.org/mars/topic/org.eclipse.jdt.doc.isv/reference/api/org/eclipse/jdt/core/Signature.html}}である。
 jarファイルに含まれるJava要素については、通常のJava要素と似たフォーマッティングルールで記録される。
 その他のファイルについては、プロジェクトルートの相対パスが"/"区切りでそのまま記録される。
 本稿では、\ref{experiment_chap}章の実験においては、{\it StructureHandle}が通常のJava要素を表し、かつファイルレベルまたはメソッドレベルであるような操作イベントのみを用いる。
+\section{NumEvent}
+{\it NumEvent}は、集約した操作イベントの個数を表す数値であり、Mylyn 3.0.3で導入された。
+
+Mylynの内部では操作イベントが頻繁に発生している。
+{\it Kind}が``edit"である操作イベントは、開発者が「エディタ上でカーソルを動かした後カーソルを一定時間（1秒程度）止める」という動作を行なうたびに発生する。
+Mylynではこのように発生した操作イベントを1つに集約する際、いくつの操作イベントを集約したかを{\it NumEvent}という属性で記録している（図\ref{mylyn_interaction}）。
 \section{Interest}
-Interestとは、Mylynエンジンが計算する成果物に対する開発者の興味の度合い(Degree of Interest, DoI)であり\cite{Kersten:2006}、少なくともMylynの最初のメジャーリリースより前の時点で実装されたものである。
+{\it Interest}とは、Mylynエンジンが計算する成果物に対する開発者の興味の度合い(Degree of Interest, DoI)であり\cite{Kersten:2006}、少なくともMylynの最初のメジャーリリースより前の時点で実装されたものである。
 この属性は、対象とする成果物を操作するたびに急激に増加し、対象とする成果物以外を操作するとゆるやかに減少するような指標であり、
 「タスクに関係する成果物の集約」というMylynの主機能の実現のために使われている。
-\section{NumEvent}
-NumEventは、集約した操作イベントの個数を表す数値であり、Mylyn 3.0.3で導入された。
 
 \chapter{Mylynの操作履歴を細粒度にする拡張}
 \section{概要}
