@@ -249,7 +249,7 @@ MylynプロジェクトのすべてのコミッターはMylynを用いてBugzill
 \end{tabular}
 \end{table}
 
-\section{Date}
+\section{Date}\label{date_sec}
 操作イベントには、"{\it StartDate}","{\it EndDate}"の2つの時間に関する属性がある。
 これらはそれぞれ、タスクを活性化させている期間全体での最初のタイムスタンプと最後タイムスタンプを表現している。
 操作履歴がMylynログに出力される際、開発者の操作は、成果物名と{\it Kind}の組に対して1つの操作イベントに集約される(図\ref{mylyn_interaction})。
@@ -293,6 +293,9 @@ Mylynではこのように発生した操作イベントを1つに集約する�
 \chapter{Mylynの操作履歴を細粒度にする拡張}
 \section{概要}
 本章では、開発者が変更を行なったかどうかを検知する機能と、変更情報と時系列情報を操作の属性として加えてMylynログに出力する機能をMylynに加える拡張について述べる。
+
+多くの操作履歴収集ツール（表\ref{finegrained}）は、操作の順序や変更の有無の情報など、細粒度の操作履歴を取得することができる。
+Mylyn\cite{Kersten:2005}は一般の開発者に配布されている操作履歴取得ツールであり、現在までに7年分の操作履歴が記録されているが、Mylynの記録する操作履歴（Mylynログ）は操作の順序（\ref{date_sec}）や変更の有無（\ref{kind_sec}）が記録されていない。
 \section{設計}
 \section{実行例}
 \chapter{Mylynの操作履歴による変更推薦手法}\label{experiment_chap}
