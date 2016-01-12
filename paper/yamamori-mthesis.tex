@@ -3,6 +3,8 @@
 %\documentclass[a4paper,openany]{jsbook} % 章末の白紙ページを省きたいとき
 
 \usepackage[sort]{cite}              % 参考文献のソート
+\usepackage[dvipdfmx]{color}
+
 
 \usepackage[mthesis,draft]{salab}    % 草稿では draft を追加
 %\usepackage[mthesis]{salab}         % 本番はこっち
@@ -54,7 +56,8 @@ This dissertation studies ...
 Zimmermannらは、改版履歴を解析することにより、変更される可能性のあるメソッド、フィールド等のコード要素を推薦する変更推薦ツール、eROSE\cite{Zimmermann:2005}を提案した。
 
 最近では、開発者が過去に操作した統合開発環境(IDE)やWebブラウザ等の開発ツールの情報が記録された操作履歴(interaction history)\cite{rsse:2014}を解析する研究がさかんに行われている。
-先行研究\cite{6233415,KatoJapanese:2011,ss2012-76,ss2013-84,Yamamori:2016}では、変更推薦プロセスの性能を向上させるために、ソースコードへの変更と参照の情報を細粒に記録されている操作履歴を変更支援手法に適用した。
+Sawadskyら\cite{Sawadsky:2013}は、開発者のコードの閲覧と、Webブラウザーを介してAPIのドキュメンテーションページを閲覧する操作を記録し、潜在意味解析(LSA)やTF-IDFを用いて開発者が閲覧すべきドキュメンテーションページを推薦するEclipseプラグイン、Reverbを開発し、被験者実験によってこの推薦のヒット率が高いことを示した。
+また、変更支援手法に関する研究\cite{6233415,KatoJapanese:2011,ss2012-76,ss2013-84,Yamamori:2016}では、変更推薦プロセスの性能を向上させるために、ソースコードへの変更と参照の情報を細粒に記録されている操作履歴を変更支援手法に適用した。
 
 細粒度な操作履歴を用いた研究の共通の問題点として、
 改版履歴とは異なり操作履歴には一般的に使われている記録ツールが存在せず、
@@ -216,6 +219,17 @@ Mylynの主な機能はタスクに関係するファイルを集約すること
 MylynプロジェクトはイシュートラッキングシステムであるBugzilla\footnote{\url{https://bugs.eclipse.org/bugs/}}を利用している。
 MylynプロジェクトのすべてのコミッターはMylynを用いてBugzillaにMylynログをアップロードする義務を負っているため\footnote{\url{https://wiki.eclipse.org/Mylyn/Contributor_Reference\#Using_Mylyn}}、Mylynログは2007年からBugzilla上にアップロードされ続け、現存する最も長期間の操作履歴となっている。
 
+図\ref{bugzilla_webpage}は、Mylynプロジェクトが利用しているBugzillaのページの一例である。
+この図の左下にある"mylyn/context/zip"というリンクをクリックすることでMylynログをダウンロードすることが可能である。
+
+\begin{figure}[tb]
+  \centering
+  \includegraphics[width = \linewidth]{resource/bugzilla_webpage.png}
+  \caption{MylynログがアップロードされているBugzillaのページの例 (\url{https://bugs.eclipse.org/bugs/show_bug.cgi?id=237552})}
+  \label{bugzilla_webpage}
+\end{figure}
+
+
 操作イベントはXMLの要素で表され、{\it Kind}、{\it StructureHandle}などの属性が存在する。
 以下の節ではそれぞれの属性について詳しく説明する。
 
@@ -270,15 +284,22 @@ MylynプロジェクトのすべてのコミッターはMylynを用いてBugzill
 これらの3つの種類の成果物は、{\it StructureHandle}の文字列表現のフォーマットがそれぞれ異なる。
 
 Java要素についてはMylynのオリジナルのフォーマッティングルールが適用され、プロジェクト、パッケージ、ファイル、クラス、メソッド、フィールドのうちのいずれかの粒度で記録される。
-例えば、``=W/src$<$X\{Y.java[Y$\sim$z$\sim$I"という{\it StructureHandle}を考える。
+ここで、Mylynによって記録される成果物の粒度は各操作に対し1つのみであることに注意が必要である。
+例えば、ある操作イベントがコード上のメソッドブロック内で発生した場合、この操作はメソッドの粒度のみで記録され、このメソッドを含むクラス、ファイル、パッケージ、プロジェクトの粒度では記録されない。
+したがって、クラスに対する操作イベントは、メソッドブロックまたはフィールド行以外の部分で操作イベント発生した時のみ記録され、同様にファイルに対する操作イベントは、クラスブロックの外で操作イベントが発生した場合のみに記録される。
+
+Java要素を表す{\it StructureHandle}の例として、``=W/src$<$X\{Y.java[Y$\sim$z$\sim$I"という{\it StructureHandle}を考える。
 \begin{comment}
 ]%Vimプラグインが暴れないためのおまじない
 \end{comment}
 これは、「{\it z(int arg)}」という名前のメソッドが操作されたことと、このメソッドが、「{\it W}プロジェクトの中の{\it src}というソールフォルダ内にある{\it X}パッケージの{\it Y.java}というソースファイルの{\it Y}クラス」内にあることを示す。
 引数の{\it I}の部分はEclipseのSignatureシンタックス\footnote{\url{http://help.eclipse.org/mars/topic/org.eclipse.jdt.doc.isv/reference/api/org/eclipse/jdt/core/Signature.html}}である。
+
 jarファイルに含まれるJava要素については、通常のJava要素と似たフォーマッティングルールで記録される。
 その他のファイルについては、プロジェクトルートの相対パスが"/"区切りでそのまま記録される。
+
 本稿では、\ref{experiment_chap}章の実験においては、{\it StructureHandle}が通常のJava要素を表し、かつファイルレベルまたはメソッドレベルであるような操作イベントのみを用いる。
+
 \section{NumEvent}
 {\it NumEvent}は、集約した操作イベントの個数を表す数値であり、Mylyn 3.0.3で導入された。
 
