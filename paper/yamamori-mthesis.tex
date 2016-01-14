@@ -4,6 +4,31 @@
 
 \usepackage[sort]{cite}              % 参考文献のソート
 \usepackage[dvipdfmx]{color}
+\usepackage{listings}
+
+\definecolor{gray}{rgb}{0.4,0.4,0.4}
+\definecolor{darkblue}{rgb}{0.0,0.0,0.6}
+\definecolor{cyan}{rgb}{0.0,0.6,0.6}
+
+\lstset{
+  basicstyle={\scriptsize\ttfamily},
+  columns=fullflexible,
+  showstringspaces=false,
+  commentstyle=\color{gray}\upshape,
+  breaklines=true
+}
+
+\lstdefinelanguage{XML}
+{
+  morestring=[b]",
+  morestring=[s]{>}{<},
+  morecomment=[s]{<?}{?>},
+  stringstyle=\color{black},
+  identifierstyle=\color{darkblue},
+  keywordstyle=\color{cyan},
+  morekeywords={xmlns,version,type}% list your attributes here
+}
+
 
 
 \usepackage[mthesis,draft]{salab}    % 草稿では draft を追加
@@ -212,6 +237,7 @@ S. Leeら\cite{SLee:2015}はMylynの粗粒度操作履歴から相関ルール�
 
 \chapter{Mylynの操作履歴}\label{mylyn_chap}
 Mylyn\cite{Kersten:2005}はタスクマネージメントツールであり、Eclipseプラグインとして実装されている。
+MylynはEclipseに標準でバンドルされているため、既に多くの開発者にMylynが配布されている。
 Mylynの主な機能はタスクに関係するファイルを集約することだが、この機能に付随して、タスクが活性化されている間、開いたファイルの情報やカーソルの移動の情報等を操作イベントとして記録し、XML形式のログファイルに出力する機能がある。
 本稿では、このログファイルのことを``Mylynログ"と呼び、あるタスクを実行中に記録された操作の列を``セッション"、セッションの列を``（Mylynの）操作履歴"と呼ぶ。
 また、それぞれのセッションに含まれる1つの操作を``操作イベント"と呼ぶ。
@@ -315,10 +341,23 @@ Mylynではこのように発生した操作イベントを1つに集約する�
 \section{概要}
 本章では、開発者が変更を行なったかどうかを検知する機能と、変更情報と時系列情報を操作の属性として加えてMylynログに出力する機能をMylynに加える拡張について述べる。
 
-多くの操作履歴収集ツール（表\ref{finegrained}）は、操作の順序や変更の有無の情報など、細粒度の操作履歴を取得することができる。
-Mylyn\cite{Kersten:2005}は一般の開発者に配布されている操作履歴取得ツールであり、現在までに7年分の操作履歴が記録されているが、Mylynの記録する操作履歴（Mylynログ）は操作の順序（\ref{date_sec}）や変更の有無（\ref{kind_sec}）が記録されていない。
+多くの操作履歴収集ツール（表\ref{finegrained}）は、操作の順序や変更の有無の情報などを含む細粒度の操作履歴を取得することができ、これらの情報を用いた変更支援手法の研究では一定の成果を上げている。
+しかし、これらの操作履歴取得ツールは一般に普及しておらず、
+実証実験に用いるためのデータセットを収集することが困難である。
+\cite{6233415,KatoJapanese:2011,ss2012-76,ss2013-84,Yamamori:2016}ではデータセット収集のために、15人の被験者に対し2週間程度の開発を行わせることで操作履歴を取得しているが、人数、期間が小さいことや実製品の開発で取得した操作履歴ではないことから、より一般的なデータセットを利用する必要がある。
+
+一方、Mylyn\cite{Kersten:2005}は一般の開発者に配布されているタスクマネジメントツールであり、操作履歴の取得が可能である。
+MylynはEclipseに標準でインストールされており、Mylyn自身の開発プロジェクトにおいて現在までに7年分の操作履歴が記録されているなど多くの開発プロジェクトでMylynが使われていることから、この操作履歴を利用することでより一般的な実証実験を行なうことが可能となる。
+しかし、Mylynの記録する操作履歴（Mylynログ）は操作の順序（\ref{date_sec}）や変更の有無（\ref{kind_sec}）が記録されておらず、既存の変更支援手法にこの操作履歴を適用することが出来ない。
+
+Mylynログを用いて既存の変更支援手法を実施するために、Mylynの出力する操作履歴に細粒度の情報を付け加える拡張を行なうことを考える。
+これを実施することで、既に広く配布されているMylynプラグインを利用しているプロジェクトにおいて、より長期間、大人数、かつ実製品の開発で記録された細粒度操作履歴を取得できるようになる。
+
+
 \section{設計}
 \section{実行例}
+本拡張によって記録されるMylynログの例を、付録\ref{mylyn_log_appendix}に示す。
+
 \chapter{Mylynの操作履歴による変更推薦手法}\label{experiment_chap}
 \section{概要}
 \section{操作履歴の取得}
@@ -330,7 +369,8 @@ Mylyn\cite{Kersten:2005}は一般の開発者に配布されている操作履�
 \chapter{結論}
 \chapter*{謝辞}
 \appendix
-%\chapter{付録A}
+\chapter{拡張したMylynによって取得できる操作履歴ログファイルの例}\label{mylyn_log_appendix}
+\lstinputlisting[language=xml]{local-2.xml}
 %\chapter{付録B}
 
 \backmatter
