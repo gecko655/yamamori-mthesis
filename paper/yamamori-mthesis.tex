@@ -356,8 +356,14 @@ Mylynログを用いて既存の変更支援手法を実施するために、Myl
 
 \section{設計}
 \section{実行例}
-本拡張によって記録されるMylynログの例として、著者が\ref{experiment_chap}章で実装した実験コードを編集する際に記録したMylynログから一部分を以下に示す。
+本拡張によって記録されるMylynログの例として、著者が\ref{experiment_chap}章で実装した実験コードを編集する際に記録したMylynログから一部分をListing\ref{durationlist_fig}に示す。
 なお、このMylynログ全体は付録\ref{mylyn_log_appendix}に掲載する。
+
+\begin{lstlisting}[language=xml, caption=拡張されたMylynによって記録されたMylynログの例（一部）, label=durationlist_fig]
+<InteractionEvent Delta="null" EndDate="2016-01-12 17:03:06.423 JST" Interest="15.0" Kind="edit" Navigation="null" OriginId="org.eclipse.jdt.ui.CompilationUnitEditor" StartDate="2016-01-12 16:38:31.648 JST" StructureHandle="= MylynGitPrediction/src&amp;lt;tkobaya.yamamori.mgprediction.combine{MylynReaderResult.java[MylynReaderResult~ addInteractionSet~QMylynInteractionHistory;~D" StructureKind="java" NumEvents="15" CreationCount="103" DurationList= "[2016-01-12 16:38:31.648 JST/2016-01-12 16:40:16.482 JST/modified, 2016-01-12 17:03:06.423 JST/2016-01-12 17:03:06.423 JST/modified]"/>
+\end{lstlisting}
+
+拡張前後でMylynログに変更を行なったのは、{\it Kind}が"edit"であるInteractionEventに{\it DurationList}という属性を加えた部分である。
 
 \chapter{Mylynの操作履歴による変更推薦手法}\label{experiment_chap}
 \section{概要}
