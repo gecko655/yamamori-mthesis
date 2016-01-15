@@ -6,6 +6,8 @@
 \usepackage[dvipdfmx]{color}
 \usepackage{listings}
 
+\renewcommand{\lstlistingname}{リスト}
+
 \definecolor{gray}{rgb}{0.4,0.4,0.4}
 \definecolor{darkblue}{rgb}{0.0,0.0,0.6}
 \definecolor{cyan}{rgb}{0.0,0.6,0.6}
@@ -16,6 +18,9 @@
   showstringspaces=false,
   commentstyle=\color{gray}\upshape,
   breaklines=true
+}
+\lstdefinestyle{normalsize}{
+  basicstyle={\ttfamily}
 }
 
 \lstdefinelanguage{XML}
@@ -210,7 +215,7 @@ Kerstenらは、開発者が頻繁に操作しているソフトウェア成果�
 Mylynは開発者の粗粒度操作履歴を自動で記録する機能が付属している。
 Mylynの操作履歴はMylyn自身の開発プロジェクトで2007年から記録が開始され、{\it Bugzilla}上からダウンロード可能となっている。
 したがって、Mylynで記録されたこの粗粒度操作履歴を利用して実証実験を行なうことで、前節で挙げた細粒度操作履歴用いる研究の問題を解消することができる。
-しかしながら、この粗粒度操作履歴は多くの細粒度操作履歴とは異なり、時間の情報が欠落しており、変更と参照の区別がない（\ref{mylyn_chap}章を参照）。
+しかしながら、この粗粒度操作履歴は多くの細粒度操作履歴とは異なり、時間の情報が欠落しており、変更と参照の区別がない（ \ref{mylyn_chap} 章を参照）。
 細粒度操作履歴を用いた手法に粗粒度操作履歴をそのまま適用させることは出来ないため、粗粒度操作履歴を利用できる新たな手法を生み出す必要がある。
 
 T. Leeら\cite{TLee:2011}はMylynの粗粒度操作履歴を用いた最初の研究を行なった。
@@ -246,7 +251,7 @@ MylynプロジェクトはイシュートラッキングシステムであるBug
 MylynプロジェクトのすべてのコミッターはMylynを用いてBugzillaにMylynログをアップロードする義務を負っているため\footnote{\url{https://wiki.eclipse.org/Mylyn/Contributor_Reference\#Using_Mylyn}}、Mylynログは2007年からBugzilla上にアップロードされ続け、現存する最も長期間の操作履歴となっている。
 
 図\ref{bugzilla_webpage}は、Mylynプロジェクトが利用しているBugzillaのページの一例である。
-この図の左下にある"mylyn/context/zip"というリンクをクリックすることでMylynログをダウンロードすることが可能である。
+この図の左側中段にある"mylyn/context/zip"というリンクをクリックすることでMylynログをダウンロードすることが可能である。
 
 \begin{figure}[tb]
   \centering
@@ -353,17 +358,79 @@ MylynはEclipseに標準でインストールされており、Mylyn自身の開
 Mylynログを用いて既存の変更支援手法を実施するために、Mylynの出力する操作履歴に細粒度の情報を付け加える拡張を行なうことを考える。
 これを実施することで、既に広く配布されているMylynプラグインを利用しているプロジェクトにおいて、より長期間、大人数、かつ実製品の開発で記録された細粒度操作履歴を取得できるようになる。
 
-
 \section{設計}
+Mylynに対して次の3点の拡張を行なうことで、前節で述べた情報をMylynログに加える。
+\begin{enumerate}
+  \item 変更を伴う操作かどうかの情報を記録する
+  \item カーソルがある成果物から別の成果物に移るたびに、カーソルが成果物の中に入った時刻、出た時刻の情報と、この期間に変更を伴ったかどうかを記録する
+  \item {\it Kind}が"edit"である操作イベントに以上の情報を加えて、ファイル出力する
+\end{enumerate}
+機能1は、{\it Kind}が"edit"である操作イベントが発生するたびにその成果物が含まれているファイルの内容を取得し、直前の操作イベントと比べファイルの内容が変化していた場合は「変更した("modified")」、そうでない場合は「参照した("referred")」として操作イベントに情報を付け加えるで実現した。
+ただし、直前の操作イベントと比べ成果物名({\it StructureHandle})が変化していた場合はカーソルが成果物間を移動したことを示しているため、ファイルの内容の変化にかかわらず「参照した」扱いとする。
+また、Mylynのタスクを活性化した直後の操作イベントは、直前の操作イベントがないため「参照した」扱いとする。
+ファイルを保存する前のファイルの内容を取得する必要があるため、ファイルの内容の取得はファイルシステムからではなく、Eclipseのエディターから取得している。
+また、ファイルの比較は変更されたかどうかの2択で良いため、ファイルの内容をJavaのStrint\#hashCode()メソッド\footnote{\url{https://docs.oracle.com/javase/8/docs/api/java/lang/String.html\#hashCode--}}でハッシュ化してから比較して、高速化を図った。
+
+機能2のうち時刻については、{\it Kind}が"edit"である操作イベントが発生するたびに直前の操作イベントの成果物名を比較し、変化していた場合は、直前の操作イベントの時刻を直前の操作イベントの成果物からカーソルが離れた時刻、今発生した操作イベントの時刻をその成果物にカーソルが入った時刻として記録することで実現する。
+ただし、Mylynのタスクを活性化した直後の操作イベントは、直前の操作イベントがないためカーソルが成果物に入った時刻のみを記録する。
+さらに、Mylynが非活性化した時は、直前の操作イベントの成果物からカーソルが離れたとみなしてその時刻を記録する。
+機能2のうち変更を伴ったかどうかについては、カーソルが成果物に入った時刻から出た時刻までの間に「変更した」と記録されている操作イベントが1つでも存在する場合は「変更した」、すべての操作イベントが「参照した」ならば「参照した」とすることで実現する。
+
+機能3では、Mylynログに操作履歴を書き出す際にInteractionEventという要素に{\it DurationList}という属性を追加し、その属性値として機能2で得た情報を書き込むことで実現する。
+{\it DurationList}の形式をBNF記法で以下に示す。
+\begin{verbatim}
+  <DurationList> ::= "[" + { <Duration> + "," } * + <Duration> "]"
+  <Duration> ::= <Date> + "/" <Date> + "/" + <Ismodified>
+  <Date> ::= ("yyyy-MM-dd HH:mm:ss.S z"の形式で表現された時刻)
+  <Ismodified> ::= "modified" | "referred"
+\end{verbatim}
+ここで、\texttt{<Duration>}に含まれる2つの{\texttt{<Date>}のうち、1つ目はカーソルが成果物に入った時刻を、2つ目はカーソルが成果物から出た時刻を表す。
+また、\texttt{<DurationList>}は\texttt{<Duration>}を時系列順に並べたものである。
 \section{実行例}
-本拡張によって記録されるMylynログの例として、著者が\ref{experiment_chap}章で実装した実験コードを編集する際に記録したMylynログから一部分をListing\ref{durationlist_fig}に示す。
+本拡張によって記録されるMylynログの例として、著者が\ref{experiment_chap}章で実装した実験コードを編集する際に記録したMylynログから、{\it DurationList}が含まれるInteractionEventのうち2つをリスト\ref{durationlist_fig}に示す。
 なお、このMylynログ全体は付録\ref{mylyn_log_appendix}に掲載する。
 
-\begin{lstlisting}[language=xml, caption=拡張されたMylynによって記録されたMylynログの例（一部）, label=durationlist_fig]
-<InteractionEvent Delta="null" EndDate="2016-01-12 17:03:06.423 JST" Interest="15.0" Kind="edit" Navigation="null" OriginId="org.eclipse.jdt.ui.CompilationUnitEditor" StartDate="2016-01-12 16:38:31.648 JST" StructureHandle="= MylynGitPrediction/src&amp;lt;tkobaya.yamamori.mgprediction.combine{MylynReaderResult.java[MylynReaderResult~ addInteractionSet~QMylynInteractionHistory;~D" StructureKind="java" NumEvents="15" CreationCount="103" DurationList= "[2016-01-12 16:38:31.648 JST/2016-01-12 16:40:16.482 JST/modified, 2016-01-12 17:03:06.423 JST/2016-01-12 17:03:06.423 JST/modified]"/>
+\begin{lstlisting}[style=normalsize, language=xml, caption=拡張されたMylynによって記録されたMylynログの例（一部）, label=durationlist_fig]
+<InteractionEvent Delta="null" EndDate="2016-01-12 17:03:06.423 JST" Interest="15.0" Kind="edit" Navigation="null" OriginId="org.eclipse.jdt.ui.CompilationUnitEditor" StartDate="2016-01-12 16:38:31.648 JST" StructureHandle="=MylynGitPrediction/src<tkobaya.yamamori.mgprediction.combine{MylynReaderResult.java[MylynReaderResult~ addInteractionSet~QMylynInteractionHistory;~D" StructureKind="java" NumEvents="15" CreationCount="103" DurationList= "[2016-01-12 16:38:31.648 JST/2016-01-12 16:40:16.482 JST/modified, 2016-01-12 17:02:58.409 JST/2016-01-12 17:03:06.423 JST/modified]"/>
+
+<InteractionEvent Delta="null" EndDate="2016-01-12 16:52:53.826 JST" Interest="29.0" Kind="edit" Navigation="null" OriginId="org.eclipse.jdt.ui.CompilationUnitEditor" StartDate="2016-01-12 16:43:09.833 JST" StructureHandle="= MylynGitPrediction/src<tkobaya.yamamori.mgprediction.combine{SingleFileSet.java[SingleFileSet~putAll~QMap<+QInteger;+QDouble;>;" StructureKind="java" NumEvents="29" CreationCount="157" DurationList=" [2016-01-12 16:43:09.833 JST/2016-01-12 16:43:11.666 JST/referred, 2016-01-12 16:51:14.131 JST/2016-01-12 16:51:14.131 JST/referred, 2016-01-12 16:51:38.25 JST/2016-01-12 16:52:53.826 JST/modified]"/>
 \end{lstlisting}
 
-拡張前後でMylynログに変更を行なったのは、{\it Kind}が"edit"であるInteractionEventに{\it DurationList}という属性を加えた部分である。
+1つ目の操作イベントは、{\it Kind}が"edit"であることからカーソル移動に関する操作があったことがわかり、
+{\it StructureHandle}から、"MylynGitPrecition"というプロジェクトの中にある"tkobaya.yamamori.mgprediction.combine"パッケージの"MylynReaderResult.java"に実装されている"MylynReaderResult\#addInteractionSet( MylynInteractionHistory a, double b)
+\footnote{メソッドの仮引数名は記録されないため、ここではa, b, \dots とする}"というメソッドに対する操作であることがわかる。
+また、{\it StartDate}と{\it EndDate}からこのメソッドは2016年1月12日16時38分31秒648（日本標準時）に初めてカーソルが入り、同日の17時3分6秒423を最後にカーソルがこのメソッドに入ることはなかったことがわかる。
+同様に2つ目の操作イベントは、"SingleFileSet\#putAll( Map<Integer,Double> a)"というメソッドにカーソルが入ったことを表し、その最初の時刻は16時43分09秒833、最後の時刻は16時52分53秒826であった。
+したがって、以上のDurationListを含まない情報からこれらのメソッドは16時43分から53分ごろまでの10分間はどちらもカーソルが入っていた可能性がある。
+しかし、この情報のみでは、2つのメソッドにカーソルが入った順番の情報を復元することが出来ない（図\ref{only_startdate_enddate}）。
+
+\begin{figure}[tb]
+  \centering
+  \includegraphics[width = \linewidth]{resource/only_startdate_enddate.pdf}
+  \caption{拡張前のMylynログでは、カーソルの移動した順序を復元することが出来ない}
+  \label{only_startdate_enddate}
+\end{figure}
+
+
+本拡張で追加した{\it DurationList}について注目すると、"addInteractionSet()"メソッドには16時38分31.648秒〜16時40分16秒482と17時2分58秒409〜17時3分6秒423の2回カーソルが入っており、
+"putAll()"には16時43分9秒833〜16時43分11秒666と、16時51分14秒131、16時51分38秒〜16時52分53秒826の3回カーソルが入ったことがわかる。
+したがって、これら2つのメソッドのみについて考えると、カーソルの移動した順序は
+"addInteractionSet()" $\Rightarrow$
+"putAll()" (3回) $\Rightarrow$
+"addInteractionSet()"
+であることがわかる（図\ref{with_durationlist}）。
+
+また、カーソルが入ってから出るまでに変更を伴ったかどうかについても記録されており、"addInteractionSet()"の2回のカーソル移動では変更を伴っていること、"putAll()"の3回のカーソル移動のうち、1回目2回目は変更が行われておらず、3回目のみ変更が行われていることがわかる（図\ref{with_durationlist}）。
+
+\begin{figure}[tb]
+  \centering
+  \includegraphics[width = \linewidth]{resource/with_durationlist.pdf}
+  \caption{拡張後のMylynログでは、カーソルの移動した順序を復元でき、変更の有無も記録される}
+  \label{with_durationlist}
+\end{figure}
+
+以上のようなMylynの拡張を行なうことで、
+\cite{6233415,KatoJapanese:2011,ss2012-76,ss2013-84,Yamamori:2016}の手法に対してMylynログを適用することができるようになる。
 
 \chapter{Mylynの操作履歴による変更推薦手法}\label{experiment_chap}
 \section{概要}
