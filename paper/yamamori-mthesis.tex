@@ -250,8 +250,8 @@ Mylynの主な機能はタスクに関係するファイルを集約すること
 MylynプロジェクトはイシュートラッキングシステムであるBugzilla\footnote{\url{https://bugs.eclipse.org/bugs/}}を利用している。
 MylynプロジェクトのすべてのコミッターはMylynを用いてBugzillaにMylynログをアップロードする義務を負っているため\footnote{\url{https://wiki.eclipse.org/Mylyn/Contributor_Reference\#Using_Mylyn}}、Mylynログは2007年からBugzilla上にアップロードされ続け、現存する最も長期間の操作履歴となっている。
 
-図\ref{bugzilla_webpage}は、Mylynプロジェクトが利用しているBugzillaのページの一例である。
-この図の左側中段にある"mylyn/context/zip"というリンクをクリックすることでMylynログをダウンロードすることが可能である。
+図\ref{bugzilla_webpage}は、Mylynプロジェクトが利用しているBugzillaのバグ詳細ページの一例である。
+このページの左側中段にある"mylyn/context/zip"というリンクをクリックすることでMylynログをダウンロードすることが可能である。
 
 \begin{figure}[tb]
   \centering
@@ -464,9 +464,23 @@ Mylynの操作履歴は\ref{date_sec}節で述べたように時間の情報が�
   \label{procedure}
 \end{figure}
 
-\section{操作履歴の取得}\label{obtainhistory_sec}
+\section{改版履歴と操作履歴の取得}\label{obtainhistory_sec}
 まず、Gitリポジトリの改版履歴に含まれる全てのコミットから変更されたファイル、変更されたメソッドの2つのリストを抽出する。
 コミットから変更されたメソッドの情報を抽出する際は、Kataribe (Historage)\cite{Hata:2011,Fujiwara:2014}というツールを使用した。
+
+開発者がEGitというGit操作を行なうEclipseプラグインを利用してリポジトリにコミットしていた場合、EGitは活性化中のMylynタスクのBug IDをコミットメッセージに自動的に加える機能がある。
+Bug IDの情報がコミットメッセージに含まれている場合は、この情報をコミットと共に保存する。
+
+次に、EclipseプロジェクトのBugzillaウェブサイト\footnote{\url{https://bugs.eclipse.org/bugs/}}のバグ詳細ページをクローリングし、アップロードされている全てのMylynログを取得する。
+Mylynログは\ref{mylyn_chap}で述べたようにBugzillaのバグ詳細ページにアップロードされており、バグ詳細ページは\texttt{http://bugs.eclipse.org/bugs/show\_bug.cgi?id=(整数)}で表されるURLなので、整数の部分を1〜400000まで動かして一斉取得することができる。
+さらに、Bugzillaのバグ詳細ページから、活性化していたMylynタスクのBug IDと、Mylynログがアップロードされた時刻、アップロードした開発者の名前の、3つの情報を取得し、ダウンロードしたMylynログに紐付けて記録する。
+
+得られたMylynログから、{\it Kind}が"edit"であるような操作イベントを抜き出し、そのうちファイルレベルの操作イベントとメソッドレベルの操作イベントの2つのリストを抽出する。
+本章では、Mylynログに含まれる操作された要素のリストを、Gitリポジトリにおけるコミットと同様に{\bf セッション}と呼ぶ。
+
+得られたMylynログはEclipseの約300プロジェクト\footnote{\url{https://projects.eclipse.org/}}のいずれかの開発で記録されたものであるが、そのほとんどがMylynプロジェクトおよびそのサブプロジェクトであった。
+そのため、本章の実証実験の対象リポジトリはMylynプロジェクトに含まれる12リポジトリをGitHub\footnote{\url{https://github.com/eclipse?query=mylyn}}とした。
+また、Bugzillaへのクローリングの結果、6270のバグ詳細ページから8156のMylynログをダウンロードした。
 
 \section{改版履歴と操作履歴の結合}\label{joining_sec}
 \section{相関ルールの抽出}\label{extractrules_sec}
