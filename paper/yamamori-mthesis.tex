@@ -479,39 +479,123 @@ Mylynログは\ref{mylyn_chap}で述べたようにBugzillaのバグ詳細ペー
 本章では、Mylynログに含まれる操作された要素のリストを、Gitリポジトリにおけるコミットと同様に{\bf セッション}と呼ぶ。
 
 得られたMylynログはEclipseの約300プロジェクト\footnote{\url{https://projects.eclipse.org/}}のいずれかの開発で記録されたものであるが、そのほとんどがMylynプロジェクトおよびそのサブプロジェクトであった。
-そのため、本章の実証実験の対象リポジトリはMylynプロジェクトに含まれる12リポジトリをGitHub\footnote{\url{https://github.com/eclipse?query=mylyn}}とした。
+そのため、本章の実証実験の対象リポジトリはMylynプロジェクトに含まれる12リポジトリをGitHub\footnote{\url{https://github.com/eclipse?query=mylyn}}とした（12リポジトリの詳細は付録\ref{mylyn_repo_appendix}を参照）。
 また、Bugzillaへのクローリングの結果、6270のバグ詳細ページから8156のMylynログをダウンロードした。
 
 \section{改版履歴と操作履歴の結合}\label{joining_sec}
 改版履歴のコミットと操作履歴のセッションについて、同じ開発活動で作成されたと考えられるもの同士を紐付け、結合した履歴を作成する。
 Mylynログは、Bug ID毎に作成されるが、セッションに対応するコミットの情報はMylynログにもBug IDにも含まれていない。
-本稿においては、同じ開発活動で作成されたコミットとセッションは、以下の1)〜3)が成り立つと考え、これらをコミットとセッションを紐付ける際の条件とした。
+本稿においては、同じ開発活動で作成されたコミットとセッションは、以下の1)〜3)が成り立つと考え、これらをコミットとセッションを紐付ける際の条件とした（図\ref{concat_figure}）。
 \begin{enumerate}
   \item Bug IDが同じであること
   \item 著者名が同じであること
   \item 作成日時の差が2分以内であること
 \end{enumerate}
-このうち、2)の条件については、GitはGitクライアントのアカウント名を、MylynはBugzillaのアカウント名を利用する。
-しかし、これらのアカウント名が異なる開発者が多く存在した（例えば、Bugzillaのアカウント名が"Steffen Pingel"の開発者と、Gitクライアントのアカウント名が"spingel"の開発者は、アカウント名が異なるが同一人物と考えられる）。
-そのため、アカウントリストを人手で判別することによりこれらのアカウント名の対応関係のリストを作成し、2)の条件に利用した。
-最終的に、38のGitのアカウント名のうち、18名については対応するBugzillaアカウントをみつけることに成功した。
-半数以上のGitのアカウント名の対応関係を見つけることができなかったが、これは以下のことが原因であると考えられる。
-\begin{itemize}
-  \item 開発者が、Mylyn開発時の義務（\ref{mylyn_chap}章参照）を果たさず、Mylynログをアップロードしていなかったため
-  \item 「実名」と「よく知られているニックネーム」など、開発者がGitとBugzillaの間で相違する名前を使用していたため
-\end{itemize}
-
 \begin{figure}[tb]
   \centering
   \includegraphics[width = \linewidth]{resource/concatenating.pdf}
   \caption{1)Bug ID、 2)アカウント名、3) 作成日時の差が2分以内であるの1)〜3)を条件に、コミットとセッションを結合する}
   \label{concat_figure}
 \end{figure}
+このうち、2)の条件については、GitはGitクライアントのアカウント名を、MylynはBugzillaのアカウント名を利用する。
+しかし、これらのアカウント名が異なる開発者が多く存在した（例えば、Bugzillaのアカウント名が"Steffen Pingel"の開発者と、Gitクライアントのアカウント名が"spingel"の開発者は、アカウント名が異なるが同一人物と考えられる）。
+そのため、アカウントリストを人手で判別することによりこれらのアカウント名の対応関係のリストを作成し、2)の条件に利用した。
+最終的に、38のGitのアカウント名のうち、18名については対応するBugzillaアカウントを見つけることに成功した（表\ref{transaction}）。
+半数以上のGitのアカウント名の対応関係を見つけることができなかったが、これは以下のことが原因であると考えられる。
+\begin{itemize}
+  \item 開発者が、Mylyn開発時の義務（\ref{mylyn_chap}章参照）を果たさず、Mylynログをアップロードしていなかったため
+  \item 「実名」と「よく知られているニックネーム」など、開発者がGitとBugzillaの間で相違する名前を使用していたため
+\end{itemize}
+
+3)の条件については、開発者がEGitというGit操作を行なうEclipseプラグインを利用してリポジトリにコミットしていることを仮定している。
+MylynにはEGitと協調してEGitでコミットを行なった際に同時にMylynログをBugzillaに送信する機能があり\footnote{\url{https://wiki.eclipse.org/Mylyn/Contributor_Reference\#Connect_to_Gerrit_and_Git}}、この機能を開発者が利用しているならば、EGitのコミット時刻とほぼ同時刻にMylynログがBugzillaにアップロードされる。
+したがって、2分という短い時間の間に作成されたコミットとセッションは、この機能を利用している可能性が極めて高く、本稿においてはこのような場合のみ同じ開発作業で作成されたコミット、セッションの可能性があるとした。
 
 コミットとセッションの結合の結果、12のGitリポジトリに含まれるコミットと、全てのEclipseプロジェクトに含まれるセッションを結合し、968個のファイルレベルのコミット-セッションペアを得た。
 結合作業後、結合されなかったコミットとセッションは実験対象から除外した。
 
+一般に、あるGitリポジトリ中のコミットに他のリポジトリに含まれているファイルが入っていることはないが、Mylynログに含まれるセッションは、同時にEclipse上で開かれているファイル同士であれば、リポジトリをまたいだ2つ以上のファイルが同じセッションに含まれている場合もある。
+しかし、操作履歴と改版履歴を用いた変更支援手法を比較するため、実証実験を行なう際は1つのGitリポジトリを実験対象とする。
+対象とするリポジトリは最も多くのコミット-セッションペアを生成できた{\it mylyn.tasks}\footnote{\url{https://github.com/eclipse/mylyn.tasks}}リポジトリとした。
+このリポジトリには41個のEclipseプロジェクトが含まれていた。
+
+{\it mylyn.tasks}リポジトリに含まれる8548コミットとMylynログに含まれる8156セッションから、ファイルレベルのコミット-セッションペアが600個、メソッドレベルのコミット-セッションペアが553個生成された（表\ref{transaction}）。
+メソッドレベルのコミット-セッションペアの数がファイルレベルに比べて少ないが、これは、メソッドブロック内で変更が行われず、コメントやフィールド、インポート等メソッドブロック以外の部分で変更が行われたコミットが存在するためである。
+このようなコミットでは、ファイルの変更は記録されるが、メソッドは変更されていない。
+\begin{table}[tb]
+  \begin{center}
+    \caption{トランザクション数とアカウント数}
+\label{transaction}
+\begin{tabular}{lrr}
+  \hline
+  履歴の種類 & トランザクション数 & アカウント数\\
+  \hline
+  （{\it mylyn.tasks}の）コミット & 8548 &38\\
+  セッション & 8156 &277\\
+  \hline
+  ファイルレベルのコミット-セッションペア & 600 & 18\\
+  メソッドレベルのコミット-セッションペア & 553 & 18\\
+  \hline
+\end{tabular}
+  \end{center}
+\end{table}
+
+一部のコミット-セッションペアは1対1対応となっておらず、ファイルレベルでは11個のペアが、メソッドレベルでは10個のペアが、1対2、1対3、2対1などの対応関係になっていた。
+これは、ペアに含まれているコミットとセッションが2分以内に作成されている場合に起きるものであり、このようなペアに含まれるコミットやセッションは1つのコミットやセッションにみなせるものと考え、他のペアと同じ扱いとした。
+\begin{table}[tb]
+  \begin{center}
+    \caption{コミット-セッションペアの対応関係}
+\label{squash}
+\begin{tabular}{c|rr}
+  \hline
+  コミット数 vs. セッション数 & ファイルレベルのペア&\# メソッドレベルのペア\\
+    \hline
+  1 vs. 1 & 589 & 543\\
+  1 vs. 2 & 1 & 1\\
+  2 vs. 1 & 9 & 9\\
+  3 vs. 1 & 1 & 0\\
+\hline
+  合計 & 600& 553\\
+  \hline
+\end{tabular}
+  \end{center}
+\end{table}
+
+\begin{figure*}[tb]
+  \centering
+  \includegraphics[width = 0.9\linewidth]{resource/commit_distribution.pdf}
+  \caption{全てのコミットと、ファイルレベルでセッションと結合できたコミットの作成時刻の分布}
+  \label{commit_distribution}
+\end{figure*}
+図\ref{commit_distribution}は、ファイルレベルにおける、セッションと結合できたコミットの作成時刻の分布である。
+
+セッションと結合できたコミットは2007年6月に初めて出現したが、これはMylyn 2.0のリリース時期と一致している。
+この時期からMylynの開発者はメンテナンスタスクの際にMylynログを継続的にアップロードするようになり、結合されたコミットはいくつかのメジャーリリースを跨いで分布していることがわかる。
+したがって、今回取得できたコミット-セッションペアを利用して変更推薦を行なうことで、変更推薦の一般的な特徴を議論することが可能となる。
+
+一般に、コードの変更を行なった場合、そのコードをエディタ上に表示するためにコードの参照を同時に行なっているはずであり、この仮定に基づくならばGitのコミットに含まれている成果物はMylynのセッショに含まれている成果物の部分集合となるべきである。
+しかし、この仮定に反し、ファイルレベルの600個のコミット-セッションペアのうち19\%はこのような条件が成り立たず、コミットに含まれていてセッションに含まれないファイルが存在した。
+この事実に対応する仮定として、セッションに含まれていないがコミットに含まれている成果物は、実際は参照されていたが、操作としてMylynが記録することができなかった場合について考える。
+この状況は、開発者がMylynタスクを活性化し忘れたままコードの変更を開始し、開発途中でMylynタスクを活性化したのち、変更したコードをMylynタスクの活性化後は一度も触らなかった場合に起こりうる。
+この仮定から、コミットに含まれる全ての成果物は参照されたとみなし、参照はセッションとコミットの和集合、変更はコミットと定義することにする。
+\begin{eqnarray}
+  参照 &=& コミット \cup セッション\\
+  変更 &=&  コミット
+\end{eqnarray}
+そして、参照の列を{\bf 参照履歴}、変更の列を{\bf 変更履歴}と定義する。
 \section{相関ルールの抽出}\label{extractrules_sec}
+Zimmermannらが実装したeROSE\cite{Zimmermann:2005}は、A-prioriアルゴリズム\cite{Bondugula:2006}を用いて改版履歴から共変更の相関ルールを抽出し変更推薦を行なうツールである。
+この共変更相関ルールはファイル同士の変更の関係を表し、以下のように定義される。
+$x_1$をファイルの集合、$x_2$を1個のファイルとする。
+相関ルールは$x_1 \Rightarrow x_2$と表され、$x_1$に含まれる全ての要素が変更された場合、$x_2$も変更されることが予想できることを意味する。
+$x_1$と$x_2$はそれぞれ、「左辺値」、「右辺値」と呼ばれている。
+
+LCExtractor\cite{Hagward:2015,Mori:2015}も同様に改版履歴から共変更の相関ルールを計算するツールである。
+LCExtractorはeROSEと異なり、成果物名の変更に追随し、現存しないファイルを含むルールを出力しないという機能がある。
+本稿ではこのLCExtractorを拡張し、変更履歴や参照履歴を入力することで、共変更の相関ルール(co-change association rules)と共参照の相関ルール(co-reference association rules)が計算できるようにした。
+特筆すべき点として、改版履歴と操作履歴を結合した参照履歴からLCExtractorを用いて今日参照の相関ルールを抽出することで、LCExtractorの特徴である成果物名の変更の追従機能を利用することができる点がある。
+成果物名の変更は、Mylynログのどの操作イベントにも記録されていないが、Gitのコミットには記録されているため、コミットとセッションを結合させることで変更の追従を行なうことが可能となった。
+
 \section{評価メトリクス}\label{metrics_sec}
 \chapter{評価実験}
 %section分け未定
@@ -520,7 +604,22 @@ Mylynログは、Bug ID毎に作成されるが、セッションに対応する
 \appendix
 \chapter{拡張したMylynによって取得できる操作履歴ログファイルの例}\label{mylyn_log_appendix}
 \lstinputlisting[language=xml]{local-2.xml}
-%\chapter{付録B}
+\chapter{Mylynプロジェクトに含まれるGitリポジトリの一覧}\label{mylyn_repo_appendix}
+\begin{itemize}
+\item {\it mylyn.builds} (\url{https://github.com/eclipse/mylyn.builds})
+\item {\it mylyn.docs.vex} (\url{https://github.com/eclipse/mylyn.docs.vex})
+\item {\it mylyn.tasks} (\url{https://github.com/eclipse/mylyn.tasks})
+\item {\it mylyn.reviews} (\url{https://github.com/eclipse/mylyn.reviews})
+\item {\it mylyn.versions} (\url{https://github.com/eclipse/mylyn.versions})
+\item {\it mylyn.incubator} (\url{https://github.com/eclipse/mylyn.incubator})
+\item {\it mylyn.context} (\url{https://github.com/eclipse/mylyn.context})
+\item {\it mylyn.docs} (\url{https://github.com/eclipse/mylyn.docs})
+\item {\it mylyn.commons} (\url{https://github.com/eclipse/mylyn.commons})
+\item {\it mylyn.docs.intent.main} (\url{https://github.com/eclipse/mylyn.docs.intent.main})
+\item {\it mylyn.reviews.r4e} (\url{https://github.com/eclipse/mylyn.reviews.r4e})
+\item {\it mylyn} (\url{https://github.com/eclipse/mylyn})
+\end{itemize}
+
 
 \backmatter
 \bibliographystyle{junsrt}
