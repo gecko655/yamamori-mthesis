@@ -5,6 +5,13 @@
 \usepackage[sort]{cite}              % 参考文献のソート
 \usepackage[dvipdfmx]{color}
 \usepackage{listings}
+\usepackage{comment}
+
+\mathchardef\mhyphen="2D
+\def\ra{\rightarrow}
+\newcommand{\minconf}{mincon\!f}
+\newcommand{\fmeasure}{F\mhyphen measure}
+
 
 \renewcommand{\lstlistingname}{リスト}
 
@@ -39,9 +46,8 @@
 \usepackage[mthesis,draft]{salab}    % 草稿では draft を追加
 %\usepackage[mthesis]{salab}         % 本番はこっち
 
-\usepackage{comment}
 
-\def\ra{\rightarrow}
+
 
 \hyphenpenalty=10000
 
@@ -627,8 +633,18 @@ Mylyn 2.0のリリース以降のコミットは、全体のコミットの63\%�
 このようなルールのうち、対象のGitリポジトリに含まれない成果物が右辺にあるルールは変更推薦を必ず外すため、抽出したルールセットから除外する。
 
 \section{評価メトリクス}\label{metrics_sec}
-\chapter{評価実験}
-%section分け未定
+\chapter{評価実験}\label{result_chap}
+本章では、\ref{experiment_chap}章で説明した実験の結果について述べる。
+
+\section{実験設定}
+LCExtractorに使われているA-prioriアルゴリズムはminimum support（最小支持度,$minsup$）とminimum confidence（最小信頼度,$\minconf$）の2つのパラメータが必要となる。
+\section{相関ルールの数}
+\section{$Precision$と$Recall$}
+\section{$MRR$と$Recall$}
+\section{$\fmeasure$}
+\section{共参照ルールが有効だった変更推薦の例}
+\section{妥当性への脅威}
+
 \chapter{結論}
 \chapter*{謝辞}
 研究を進めるにあたり、終始熱心なご指導を頂いた小林隆志先生に感謝の意を表します。
