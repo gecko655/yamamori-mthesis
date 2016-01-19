@@ -670,7 +670,7 @@ $\minconf$は0.1から0.9まで0.1刻みで9種類用いた。
 全ての実験で使用した計算機は、iMac Retina 5K, Late 2014であり、CPUはIntel Core i7 Haswell 4790K (4.0GHz)、メインメモリは32GB 1600MHz DDR3、OSはApple OS X Yosemiteである。
 実験用エンジンの実装は、MylynログのクローリングにはcURL\footnote{\url{http://curl.haxx.se/}}を、A-prioriアルゴリズムによる相関ルールの計算にはR言語のarulesパッケージ\footnote{\url{https://cran.r-project.org/web/packages/arules/arules.pdf}}を、その他の実装にはJava 8を利用した。
 また、R言語とJava 8のプロセス間通信にはRserve\footnote{\url{https://rforge.net/Rserve/}}を利用した。
-\section{相関ルールの数}
+\section{相関ルールの数}\label{rulesize_sec}
 \begin{figure}[p]
   \centering
   \includegraphics[width = 0.95\linewidth]{resource/rulesize_f.pdf}
@@ -724,21 +724,9 @@ co-refルールには、490ファイルが含まれており、全体のファ�
 \end{figure}
 \begin{figure}[p]
   \centering
-  \includegraphics[width = 0.95\linewidth]{resource/mrgraph_m.pdf}
-  \caption{メソッドレベルでの$MRR$と$Recall$の関係}
-  \label{m_mrgraph}
-\end{figure}
-\begin{figure}[p]
-  \centering
   \includegraphics[width = 0.95\linewidth]{resource/fmeasure_f.pdf}
   \caption{ファイルレベルにおける$\fmeasure$}
   \label{f_fmeasure}
-\end{figure}
-\begin{figure}[p]
-  \centering
-  \includegraphics[width = 0.95\linewidth]{resource/fmeasure_m.pdf}
-  \caption{メソッドレベルにおける$\fmeasure$}
-  \label{m_fmeasure}
 \end{figure}
 本節では、10-分割交差検定により実際に相関ルールを用いて変更推薦を行い、その精度を$MRR$と$Recall$およびその調和平均である$\fmeasure$から評価する。
 
@@ -749,6 +737,111 @@ co-refルールには、490ファイルが含まれており、全体のファ�
 メソッドレベルとファイルレベルにおける$\fmeasure$を、図\ref{f_fmeasure}と図\ref{m_fmeasure}に示す。
 
 \subsection{ファイルレベルでの変更推薦}
+図\ref{f_fmeasure}によれば、co-refルールを用いた時の最大$\fmeasure$は0.204 ($minsup=0.002, \minconf =0.1$)であり、co-chgルールを用いた時の最大$\fmeasure$が0.171 ($minsup=0.002, \minconf =0.1$)であったため、co-chgルールと比較してco-refルールは$\fmeasure$が19.3\%向上した。
+したがって、ファイルレベルではco-refルールを使うことにより、co-chgルールを使う時と比べ変更推薦の普遍的な性能が向上したと言える。
+
+ファイルレベルでの変更推薦で特筆すべき点として、\ref{rulesize_sec}節で見たように$minsup=0.002,\minconf \leq 0.008$のパラメータにおいて、co-refルールに含まれるルール数がco-chgルールよりも少ないのにもかかわらず、co-refルールにより$\fmeasure$が向上したことが挙げられる。
+この事実は、co-refルールには、co-chgルールよりも変更推薦に有益なルールが多く含まれ、かつ変更推薦の役に立たないルールが少ないことを表しており、
+参照履歴を使う変更推薦が変更履歴を使うよりも適切な変更推薦を効率的に行えることを示している。
+
+\begin{table}[t]
+  \begin{center}
+    \caption{ファイルレベルの実験結果の代表値}
+    \label{results_file_table}
+    \begin{tabular}{l|lll|lll}
+      \hline
+       & \multicolumn{3}{|c|}{co-refルール} & \multicolumn{3}{|c}{co-chgルール}\\
+       &$MRR$ & $Recall$ & $(minsup,\minconf)$ & $MRR$ & $Recall$ & $(minsup,\minconf)$ \\
+      \hline
+      最大$MRR$ &0.298&{\bf 0.021} & (0.006, 0.9) &0.325&0.0006 & (0.004, 0.9)\\
+      （推薦可能な回数）            &&（12.6回） &&& （0.3回）\\
+      \hline
+      最大$Recall$    &0.147&{\bf 0.332} & (0.002, 0.1) &0.138&0.224 & (0.002, 0.1) \\
+      \hline
+      $Recall > 0.1$のときの &{\bf 0.196}& 0.143 & (0.006, 0.3) &0.158&0.146 & (0.002, 0.3) \\
+      最大$MRR$&&&&&\\
+      \hline
+    \end{tabular}
+  \end{center}
+\end{table}
+
+表\ref{results_file_table}は、図\ref{f_mrgraph}をもとに、一部の重要な結果を抜き出して表にまとめたものである。
+最大の$MRR$を記録したのはco-chgルールであり、このときの$MRR$は0.325、パラメータは$minsup=0.004,\minconf=0.9$のときであった。
+対してco-refルールの最大$MRR$は0.298であり（$minsup=0.006,\minconf=0.9$）、co-chgルールの最大$MRR$より8.3\%低かった。
+しかし、変更の必要な箇所を列挙し変更のし忘れを防ぐという点で、変更推薦においては$MRR$と同等かそれ以上に$Recall$が重要であると考えられる。
+この観点から考えると、 co-chgルールが最大$MRR$を記録したパラメータでは、$Recall$は0.0006であった。
+この数値は、600トランザクションを10-分割交差検定する間に変更推薦に成功した回数が1回未満であることを表し、ほとんどのコミットで変更推薦をすることが出来ないため有益な変更支援とはいえない。
+
+一方、最大の$Recall$を記録したのはco-refルールであり、このときの$Recall$は0.332、パラメータは$minsup=0.002,\minconf=0.1$のときであった。
+対してco-refの最大$Recall$は0.224であり（$minsup=0.002,\minconf=0.1$）、co-refルールはco-chgルールの最大$Recall$から48\%向上した。
+これは、co-refルールを用いることによって、変更し忘れる可能性のあるファイルを3ファイルのうち1ファイル見つけることができることを表している。
+さらに、$Recall$が0.1以上であるときに限定すると、co-refルールによる$MRR$の最大値は0.196（$minsup=0.006,\minconf=0.3$）となりco-chgルールの$MRR$の最大値0.158（$minsup=0.002,\minconf=0.3$）より24\%向上している。
+したがって、co-refルールを使うことでco-chgルールを使った時よりも、変更を見逃す可能性のあるファイルをより多く推薦することが可能となること、及び推薦できる回数を固定した場合には推薦の精度が向上することが示された。
+
+\begin{table}[t]
+  \begin{center}
+    \caption{ウィルコクソンの符号順位検定のP値 （ファイルレベル）}
+    \label{pvalue_file}
+    \begin{tabular}{l|rrr}
+      \hline
+      $minsup$ & $\fmeasure$ & $MRR$ & $Recall$\\
+      \hline
+      0.002 & {\bf 0.012} & 0.975 & {\bf 0.009}\\
+      0.004 & {\bf 6.2e-4} & 0.129 & {\bf 0.002}\\
+      0.006 & {\bf 0.009} & 0.030 & {\bf 0.014}\\
+      \hline
+    \end{tabular}
+  \end{center}
+\end{table}
+
+表\ref{pvalue_file}は、帰無仮説「co-refルールを用いた変更推薦の各メトリクスはco-chgルールを用いたときと比べ差がないか悪化する」を、ウィルコクソンの符号順位検定によって$minsup$毎に片側検定したものである。
+ただし、co-chgルールで変更推薦した際$minsup=0.006$のパラメータにおいて$MRR=Recall=0$となる結果が存在するため、この結果は検定時に除外した。
+表中で太字となっている数値は、有意水準$p=0.025$において有意差が存在した部分であり、全ての$minsup$において、co-refルールによる変更推薦の$\fmeasure$と$Recall$の分布はco-chgルールよりも大きいことが示された。
+
+\subsection{メソッドレベルでの変更推薦}
+
+\begin{figure}[p]
+  \centering
+  \includegraphics[width = 0.95\linewidth]{resource/mrgraph_m.pdf}
+  \caption{メソッドレベルでの$MRR$と$Recall$の関係}
+  \label{m_mrgraph}
+\end{figure}
+\begin{figure}[p]
+  \centering
+  \includegraphics[width = 0.95\linewidth]{resource/fmeasure_m.pdf}
+  \caption{メソッドレベルにおける$\fmeasure$}
+  \label{m_fmeasure}
+\end{figure}
+メソッドレベルの変更推薦の$\fmeasure$はファイルレベルの変更推薦と同様の傾向を示している（図\ref{m_fmeasure}）。
+メソッドレベルの変更推薦におけるco-refルールを用いた時の最大$\fmeasure$は$0.084$ ($minsup=0.002,\minconf=0.7$)であり、co-chgルールを用いた時の最大$\fmeasure$は0.025 ($minsup=0.002,\minconf=0.3$)であったため、co-chgルールと比較してco-refルールは$\fmeasure$が3.4倍となった。
+しかし、メソッドレベルにおけるco-refルールの最大$\fmeasure$はファイルレベルにおけるco-refルールの最大$\fmeasure$(0.204)の41\%であり、大きく下がってしまっている。
+したがって、メソッドレベルのco-refルールを使うことにより、co-chgルールを使う時と比べ変更推薦の普遍的な性能が向上したと言えるが、一方でファイルレベルのco-refルールよりは劣ることが示された。
+
+図\ref{m_mrgraph}では、co-refルールによるメソッドレベルの最大$Recall$は0.150であり、ファイルレベルの最大$Recall$(0.332)の半分以下となっている。
+メソッドレベルの変更推薦でco-refルールの$Recall$が減少した原因として、co-refルールに多くの無駄な相関ルールが含まれていることが考えられる。
+例えば、開発者がある機能のメンテナンスを行なうためにその機能に関連したメソッドを変更する場合について考える。
+このとき、開発者はその機能のメンテナンスを行なうために変更の必要なメソッドとそのメソッドを変更したときに変更が伝播するメソッドを探す必要があり、多くの関係のないメソッドを参照することになる。
+このような開発者の行動が操作履歴に記録されていると、多くの無益なco-refルールが抽出されることとなり、適切な変更推薦を行えなくなる。
+対してファイルレベルにおいては、ある機能に関連したメソッドは多くの場合同じファイル内に記述されているため、メソッドレベルのように無益なco-refルールが抽出されることは起きなかったと考えられる。
+
+\begin{table}[t]
+  \begin{center}
+    \caption{ウィルコクソンの符号順位検定のP値 （メソッドレベル）}
+    \label{pvalue_method}
+    \begin{tabular}{l|rrr}
+      \hline
+      $minsup$ & $\fmeasure$ & $MRR$ & $Recall$\\
+      \hline
+      0.002 & {\bf 2.1e-5} & 1.000 & {\bf 2.0e-4}\\
+      0.004 & {\bf 2.0e-4} & 1.000 & {\bf 1.4e-4}\\
+      \hline
+    \end{tabular}
+  \end{center}
+\end{table}
+
+表\ref{pvalue_method}は、帰無仮説「co-refルールを用いた変更推薦の各メトリクスはco-chgルールを用いたときと比べ差がないか悪化する」を、ウィルコクソンの符号順位検定によって$minsup$毎に片側検定したものである。
+ただし、$minsup=0.006$のとき、co-chgルールはすべてのパラメータで$MRR=Recall=0$だったため、表\ref{pvalue_method}に含めなかった。
+表中で太字となっている数値は、有意水準$p=0.025$において有意差が存在した部分であり、全ての$minsup$において、co-refルールによる変更推薦の$\fmeasure$と$Recall$の分布はco-chgルールよりも大きいことが示された。
 
 \section{共参照ルールが有効だった変更推薦の例}
 \section{妥当性への脅威}
