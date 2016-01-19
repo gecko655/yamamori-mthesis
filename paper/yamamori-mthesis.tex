@@ -743,7 +743,7 @@ co-refの相関ルールに対するメトリクス$MRR,Recall,\fmeasure$の定�
            &~&where~recom_{Rule}(i,c) = recom_{Rule}(ref_i - \{c\})
 \end{eqnarray}
 ここで、$recom_{Rule}(i,c)$は、$i$番目の評価セット$ref_i$と、$ref_i$に含まれる成果物$c$に対し、$ref_i$から$c$を除いた成果物の集合を入力として変更推薦を行なった時の変更推薦リストである。
-$getRR\left( recom_{Rule_{ref}}(i,c), c \right)$は、変更推薦$recom_{Rule_{ref}}(i,c)$内での$c$の順位の逆数（逆順位）を返す関数である。
+$getRR\left( recom_{Rule_{ref}}(i,c), c \right)$は、変更推薦リスト$recom_{Rule_{ref}}(i,c)$内での$c$の順位の逆数（逆順位）を返す関数である。
 
 最終的に
 $MRR_i$と$recall_i$の平均を算出し、最終的なメトリクス$MRR$と$Recall$とする。
