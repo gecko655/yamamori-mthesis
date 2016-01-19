@@ -7,9 +7,18 @@
 \usepackage{listings}
 \usepackage{comment}
 
+%%% for make figures in one page
+\renewcommand\floatpagefraction{.001}
+\makeatletter
+\setlength\@fpsep{\textheight}
+\makeatother
+%%%
+
 \mathchardef\mhyphen="2D
 \def\ra{\rightarrow}
+\def\Ra{\Rightarrow}
 \newcommand{\minconf}{mincon\!f}
+\newcommand{\confidence}{con\!f\!idence}
 \newcommand{\fmeasure}{F\mhyphen measure}
 
 
@@ -446,8 +455,8 @@ MylynログはMylynプラグイン自身の動作に不可欠であるほか、�
 本拡張で追加した{\it DurationList}について注目すると、"addInteractionSet()"メソッドには16時38分31.648秒〜16時40分16秒482と17時2分58秒409〜17時3分6秒423の2回カーソルが入っており、
 "putAll()"には16時43分9秒833〜16時43分11秒666と、16時51分14秒131、16時51分38秒〜16時52分53秒826の3回カーソルが入ったことがわかる。
 したがって、これら2つのメソッドのみについて考えると、カーソルの移動した順序は
-"addInteractionSet()" $\Rightarrow$
-"putAll()" (3回) $\Rightarrow$
+"addInteractionSet()" $\Ra$
+"putAll()" (3回) $\Ra$
 "addInteractionSet()"
 であることがわかる（図\ref{with_durationlist}）。
 
@@ -601,28 +610,41 @@ MylynにはEGitと協調してEGitでコミットを行なった際に同時にM
 しかし、この仮定に反し、ファイルレベルの600個のコミット-セッションペアのうち19\%はこのような条件が成り立たず、コミットに含まれていてセッションに含まれないファイルが存在した。
 この事実に対応する仮定として、セッションに含まれていないがコミットに含まれている成果物は、実際は参照されていたが、操作としてMylynが記録することができなかった場合について考える。
 この状況は、開発者がMylynタスクを活性化し忘れたままコードの変更を開始し、開発途中でMylynタスクを活性化したのち、変更したコードをMylynタスクの活性化後は一度も触らなかった場合に起こりうる。
-この仮定から、コミットに含まれる全ての成果物は参照されたとみなし、参照はセッションとコミットの和集合、変更はコミットと定義することにする。
+この仮定から、コミットに含まれる全ての成果物は参照されたとみなし、参照セットをセッションとコミットの和集合、変更セットをコミットと定義することにする。
 \begin{eqnarray}
-  参照 &=& コミット \cup セッション\\
-  変更 &=&  コミット
+  参照セット &=& コミット \cup セッション\\
+  変更セット &=&  コミット
 \end{eqnarray}
-そして、参照の列を{\bf 参照履歴}、変更の列を{\bf 変更履歴}と定義する。
+そして、参照セットの列を{\bf 参照履歴}、変更セットの列を{\bf 変更履歴}と定義する。
 \section{相関ルールの抽出}\label{extractrules_sec}
-Zimmermannらが実装したeROSE\cite{Zimmermann:2005}は、A-prioriアルゴリズム\cite{Bondugula:2006}を用いて改版履歴から共変更の相関ルールを抽出し変更推薦を行なうツールである。
+Zimmermannらが実装したeROSE\cite{Zimmermann:2005}は、改版履歴から共変更の相関ルールを抽出し変更推薦を行なうツールである。
 この共変更相関ルールはファイル同士の変更の関係を表し、以下のように定義される。
 $x_1$をファイルの集合、$x_2$を1個のファイルとする。
-相関ルールは$x_1 \Rightarrow x_2$と表され、$x_1$に含まれる全ての要素が変更された場合、$x_2$も変更されることが予想できることを意味する。
+相関ルールは$x_1 \Ra x_2$と表され、$x_1$に含まれる全ての要素が変更された場合、$x_2$も変更されることが予想できることを意味する。
 $x_1$と$x_2$はそれぞれ、「左辺」、「右辺」と呼ばれている。
 
 LCExtractor\cite{Hagward:2015,Mori:2015}も同様に改版履歴から共変更の相関ルールを計算するツールである。
 LCExtractorはeROSEと異なり、成果物名の変更に追随し、現存しないファイルを含むルールを出力しないという機能がある。
 本稿ではこのLCExtractorを拡張し、変更履歴や参照履歴を入力することで、共変更の相関ルール({\bf co-change association rules(co-chg)})と共参照の相関ルール({\bf co-reference association rules(co-ref)})が計算できるようにした。
-特筆すべき点として、改版履歴と操作履歴を結合した参照履歴からLCExtractorを用いて今日参照の相関ルールを抽出することで、LCExtractorの特徴である成果物名の変更の追従機能を利用することができる点がある。
+特筆すべき点として、改版履歴と操作履歴を結合した参照履歴からLCExtractorを用いて共参照の相関ルールを抽出することで、LCExtractorの特徴である成果物名の変更の追従機能を利用することができる点がある。
 成果物名の変更は、Mylynログのどの操作イベントにも記録されていないが、Gitのコミットには記録されているため、コミットとセッションを結合させることで変更の追従を行なうことが可能となった。
 なお、\ref{metrics_sec}節で後述するように、履歴のうちの一部を学習セットに用いて他の一部を評価セットに用いるために、LCExtractorの「現存しないファイルを含むルールを出力しない機能」は本稿では使用しない。
 
+A-prioriアルゴリズム\cite{Bondugula:2006}とは、アイテムセットのデータベースから、効率的な枝刈りを行いながら相関ルールを抽出するアルゴリズムであり、eROSEやLCExtractorの実装に使われている。
+ルールの枝刈りには、支持度($support$)と確信度($\confidence$)という2つの相関ルールの評価尺度を用いる。
+トランザクション集合$T$内で見つかったある相関ルール$X \Ra Y$において
+$support$とは全体のトランザクション数のうち$X$および$Y$を含んでいるトランザクションの割合であり、
+$\confidence$とは$X$を含むトランザクション数のうち$X$および$Y$を含んでいるトランザクションの割合である。
+これらを形式的に表すと以下のようになる。
+\begin{eqnarray}
+  support_{T,X \Ra Y} &=& \frac{| X \cup Y |}{|T|}\\
+  \confidence_{T,X \Ra Y} &=& \frac{| X \cup Y |}{|X|}
+\end{eqnarray}
+なお、$minsup$については、\cite{Zimmermann:2005}のように全てのトランザクション数に対する割合ではなく、$X$および$Y$を含むトランザクション数を利用している研究もある。\cite{Zimmermann:2005}ではこのような数値を{\it minimum support count}と呼んでいる。
+本稿では{\it minimum support count}は使用せず、$minsup$は全トランザクション数に対する相対値を用いる。
+
 参照履歴を用いた変更推薦の効果を測定するため、参照履歴と変更履歴の両方から相関ルールを抽出し、比較を行なう。
-ルールを抽出する際、参照履歴についてはコミットと結合することができた全ての参照をデータセットとし、変更履歴についてはセッションと結合できたかどうかに関わらず、Mylyn 2.0のリリースが行われたコミットよりも新しい変更を全てデータセットとした。
+ルールを抽出する際、参照履歴についてはコミットと結合することができた全ての参照セットをデータセットとし、変更履歴についてはセッションと結合できたかどうかに関わらず、Mylyn 2.0のリリースが行われたコミットよりも新しい変更セットを全てデータセットとした。
 Mylyn 2.0のリリース以降のコミットは、全体のコミットの63\%であった。
 このとき、変更履歴についてもセッションと結合できたコミットのみを利用する方法もあったが、この方法は取得できたセッションの内容に大きくバイアスされ、参照履歴を利用した変更推薦のベースラインとしては適さない。
 そのため、参照履歴と変更履歴の期間をMylyn 2.0リリース以降に揃え、期間内の全ての変更を利用することで、取得できたMylynログの内容になるべくバイアスされないよう配慮した。
@@ -632,16 +654,102 @@ Mylyn 2.0のリリース以降のコミットは、全体のコミットの63\%�
 そのため、共参照の相関ルールには、対象のGitリポジトリ({\it mylyn.tasks})に含まれない成果物が含まれている可能性がある。
 このようなルールのうち、対象のGitリポジトリに含まれない成果物が右辺にあるルールは変更推薦を必ず外すため、抽出したルールセットから除外する。
 
+A-prioriアルゴリズムを利用して相関ルールを抽出する際はパラメータとしてminimum support（最小支持度, $minsup$）とminimum confidence（最小確信度, $\minconf$）を決める必要がある。
+これについては\ref{setting_sec}節で述べる。
+
 \section{評価メトリクス}\label{metrics_sec}
 \chapter{評価実験}\label{result_chap}
-本章では、\ref{experiment_chap}章で説明した実験の結果について述べる。
+本章では、\ref{experiment_chap}章で説明した実験について、実施した実験の詳細とその結果について述べる。
 
-\section{実験設定}
-LCExtractorに使われているA-prioriアルゴリズムはminimum support（最小支持度,$minsup$）とminimum confidence（最小信頼度,$\minconf$）の2つのパラメータが必要となる。
+\section{実験設定}\label{setting_sec}
+前章（\ref{extractrules_sec}節）で述べたように、LCExtractorに使われているA-prioriアルゴリズムはminimum support（最小支持度, $minsup$）とminimum confidence（最小信頼度, $\minconf$）の2つのパラメータが必要となる。
+本実験では、$minsup$は0.002, 0.004, 0.006の3種類を用いた。
+$\minconf$は0.1から0.9まで0.1刻みで9種類用いた。
+したがって、$minsup$と$\minconf$の組み合わせ数は27通りである。
+
+全ての実験で使用した計算機は、iMac Retina 5K, Late 2014であり、CPUはIntel Core i7 Haswell 4790K (4.0GHz)、メインメモリは32GB 1600MHz DDR3、OSはApple OS X Yosemiteである。
+実験用エンジンの実装は、MylynログのクローリングにはcURL\footnote{\url{http://curl.haxx.se/}}を、A-prioriアルゴリズムによる相関ルールの計算にはR言語のarulesパッケージ\footnote{\url{https://cran.r-project.org/web/packages/arules/arules.pdf}}を、その他の実装にはJava 8を利用した。
+また、R言語とJava 8のプロセス間通信にはRserve\footnote{\url{https://rforge.net/Rserve/}}を利用した。
 \section{相関ルールの数}
-\section{$Precision$と$Recall$}
-\section{$MRR$と$Recall$}
-\section{$\fmeasure$}
+\begin{figure}[p]
+  \centering
+  \includegraphics[width = 0.95\linewidth]{resource/rulesize_f.pdf}
+  \caption{ファイルレベルでの相関ルール数}
+  \label{f_rule}
+\end{figure}
+\begin{figure}[p]
+  \centering
+  \includegraphics[width = 0.95\linewidth]{resource/rulesize_m.pdf}
+  \caption{メソッドレベルでの相関ルール数}
+  \label{m_rule}
+\end{figure}
+ファイルレベルとメソッドレベルでの抽出できた相関ルールの個数を、図\ref{f_rule}および図\ref{m_rule}にそれぞれ示す。
+実線はco-refルールを、破線はco-chgルールを表す。
+10-分割交差検定を行ないその平均値を表示しているため、メソッドレベルの結果の一部では、ルールの個数が1未満となるものが含まれている。
+
+図\ref{m_rule}から、メソッドレベルにおいて、参照履歴から抽出した相関ルールが、改版履歴から抽出した相関ルールよりも多いことがわかる。
+メソッドレベルのco-refルールとco-chgルールの個数の差は同一の$minsup$パラメータで比較した時1000倍以上である。
+それに対し、図\ref{f_rule}のように、ファイルレベルでは参照履歴から抽出した相関ルールと改版履歴から抽出した相関ルールでメソッドレベルほどの大きな差がなかった。
+ファイルレベルのco-refルールとco-chgルールの個数の差は同一の$minsup$パラメータで比較した時、最も大きいところでも10倍程度で、一部の$minsup$,$\minconf$パラメータではco-chgのほうがルールの個数が多いことがあった。
+
+co-ref,co-chg間でのルールサイズの差がメソッドレベルとファイルレベルの相関ルールで異なった理由として、トランザクションに含まれるアイテム（成果物）の個数の特徴が異なることが考えられる。
+メソッドレベルにおいては、参照セットに含まれるメソッド数の平均値は15.1個であり、変更セットの7.6個の約2倍であった。
+これに対し、ファイルレベルにおいては、参照セットに含まれるメソッド数の平均値は6.5個であり、変更セットの4.9個の約1.3倍であり、ファイルレベルにおいてはメソッドレベルと比べて変更セット参照セット含まれるアイテム数の差が開いていなかった。
+この事実は、開発者がメソッドを見る（カーソルをメソッドブロックの内部に入れる）とき、変更の必要のないメソッドを見ている割合がファイルを見る時と比べて多いことを示唆している。
+
+実験対象のGitリポジトリ({\it mylyn.tasks})の調査したところ、最新コミットでは存在しないファイルやメソッドも含め、1793のJavaファイルと17040のメソッドが存在した。
+ただし、この数はファイルやメソッドがリネームされた場合は1つのファイルやメソッドとして数える。
+相関ルールに含まれている成果物の数に注目すると、前述のトランザクションに含まれる成果物数と同様の傾向があった。
+最も多くのルールを抽出できるパラメータで相関ルールを抽出したとき、メソッドレベルにおいては、co-refルールには1112メソッドが含まれており、全体のメソッド数の6.5\%であったのに対し、co-chgルールには119メソッドが含まれており、全体のメソッド数の0.70\%しか含まれていなかった。
+ファイルレベルにおいては、co-refルールとco-chgルールではほぼ同数のファイルが含まれていた。
+co-refルールには、490ファイルが含まれており、全体のファイル数の27\%出会ったのに対し、co-chgルールには463ファイルが含まれており、全体のファイル数の26\%であった。
+
+\ref{extractrules_sec}節で述べたように、参照履歴ではコミット-セッションペアが作成できたトランザクションのみを、変更履歴ではコミット-セッションペアが作成できたかどうかにかかわらず全てのトランザクションを学習セットとするため、
+参照履歴の学習セットに含まれるトランザクション数は変更履歴よりも少ない。
+抽出される相関ルールは$minsup$によって足切りをされるため、\ref{joining_sec}節で述べたようにすべての参照セットは変更セットを包含しているにもかかわらず、co-chgルールに含まれるルールがco-refルールに含まれない可能性がある。
+実際、最も多くのco-chgルールを含んでいたco-refルールにおいてもその割合は$\frac{|\textrm{co-ref~} \cap \textrm{~co-chg}|}{|\textrm{co-chg}|}=45\%$であった。
+
+ルール数についてまとめると、以下のことが言える。
+\begin{quote}
+ルールの正確さや有用性についてを無視した場合、メソッドレベルにおいては、操作履歴と改版履歴を結合した参照履歴から得られる相関ルールは改版履歴のみから得られる相関ルールよりも多くのメソッドを含めることができる。
+これに対し、ファイルレベルにおいては、2種類の相関ルールはほぼ同数のファイルを含めることができる。
+\end{quote}
+
+\section{$MRR$と$Recall$、$\fmeasure$}
+\begin{figure}[p]
+  \centering
+  \includegraphics[width = 0.95\linewidth]{resource/mrgraph_f.pdf}
+  \caption{ファイルレベルでの$MRR$と$Recall$の関係}
+  \label{f_mrgraph}
+\end{figure}
+\begin{figure}[p]
+  \centering
+  \includegraphics[width = 0.95\linewidth]{resource/mrgraph_m.pdf}
+  \caption{メソッドレベルでの$MRR$と$Recall$の関係}
+  \label{m_mrgraph}
+\end{figure}
+\begin{figure}[p]
+  \centering
+  \includegraphics[width = 0.95\linewidth]{resource/fmeasure_f.pdf}
+  \caption{ファイルレベルにおける$\fmeasure$}
+  \label{f_fmeasure}
+\end{figure}
+\begin{figure}[p]
+  \centering
+  \includegraphics[width = 0.95\linewidth]{resource/fmeasure_m.pdf}
+  \caption{メソッドレベルにおける$\fmeasure$}
+  \label{m_fmeasure}
+\end{figure}
+本節では、10-分割交差検定により実際に相関ルールを用いて変更推薦を行い、その精度を$MRR$と$Recall$およびその調和平均である$\fmeasure$から評価する。
+
+メソッドレベルとファイルレベルにおける$MRR$と$Recall$の関係を、図\ref{f_mrgraph}と図\ref{m_mrgraph}に示す。
+点に付して表示している数値は$\minconf$の値である。
+メソッドレベルにおけるco-chgルールの変更推薦では、$minsup \geq 0.006$のときに変更推薦を行なうことが一切出来なかったため、$minsup = 0.006$のグラフは原点にのみプロットしている。
+
+メソッドレベルとファイルレベルにおける$\fmeasure$を、図\ref{f_fmeasure}と図\ref{m_fmeasure}に示す。
+
+\subsection{ファイルレベルでの変更推薦}
+
 \section{共参照ルールが有効だった変更推薦の例}
 \section{妥当性への脅威}
 
