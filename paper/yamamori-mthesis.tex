@@ -488,6 +488,7 @@ Mylynの操作履歴は\ref{date_sec}節で述べたように時間の情報が�
   \item 改版履歴と操作履歴を取得する（\ref{obtainhistory_sec}節）
   \item 得られた改版履歴と操作履歴を突合する（\ref{joining_sec}節）
   \item 相関ルールを抽出する（\ref{extractrules_sec}節）
+  \item 変更推薦を行なう（\ref{ranking_sec}節）
   \item メトリクスを用いて相関ルールの質を評価する（\ref{metrics_sec}節）
 \end{enumerate}
 \begin{figure}[tb]
@@ -632,15 +633,15 @@ LCExtractorはeROSEと異なり、成果物名の変更に追随し、現存し�
 
 A-prioriアルゴリズム\cite{Bondugula:2006}とは、アイテムセットのデータベースから、効率的な枝刈りを行いながら相関ルールを抽出するアルゴリズムであり、eROSEやLCExtractorの実装に使われている。
 ルールの枝刈りには、支持度($support$)と確信度($\confidence$)という2つの相関ルールの評価尺度を用いる。
-トランザクション集合$T$内で見つかったある相関ルール$X \Ra Y$において
-$support$とは全体のトランザクション数のうち$X$および$Y$を含んでいるトランザクションの割合であり、
-$\confidence$とは$X$を含むトランザクション数のうち$X$および$Y$を含んでいるトランザクションの割合である。
+トランザクション集合$T$内で見つかったある相関ルール$L \Ra R$において
+$support$とは全体のトランザクション数のうち$L$および$R$を含んでいるトランザクションの割合であり、
+$\confidence$とは$L$を含むトランザクション数のうち$L$および$R$を含んでいるトランザクションの割合である。
 これらを形式的に表すと以下のようになる。
 \begin{eqnarray}
-  support_{T,X \Ra Y} &=& \frac{| X \cup Y |}{|T|}\\
-  \confidence_{T,X \Ra Y} &=& \frac{| X \cup Y |}{|X|}
+  support_{T,L \Ra R} &=& \frac{| L \cup R |}{|T|}\\
+  \confidence_{T,L \Ra R} &=& \frac{| L \cup R |}{|L|}
 \end{eqnarray}
-なお、$minsup$については、\cite{Zimmermann:2005}のように全てのトランザクション数に対する割合ではなく、$X$および$Y$を含むトランザクション数を利用している研究もある。\cite{Zimmermann:2005}ではこのような数値を{\it minimum support count}と呼んでいる。
+なお、$minsup$については、\cite{Zimmermann:2005}のように全てのトランザクション数に対する割合ではなく、$L$および$R$を含むトランザクション数を利用している研究もある。\cite{Zimmermann:2005}ではこのような数値を{\it minimum support count}と呼んでいる。
 本稿では{\it minimum support count}は使用せず、$minsup$は全トランザクション数に対する相対値を用いる。
 
 参照履歴を用いた変更推薦の効果を測定するため、参照履歴と変更履歴の両方から相関ルールを抽出し、比較を行なう。
@@ -656,6 +657,40 @@ Mylyn 2.0のリリース以降のコミットは、全体のコミットの63\%�
 
 A-prioriアルゴリズムを利用して相関ルールを抽出する際はパラメータとしてminimum support（最小支持度, $minsup$）とminimum confidence（最小確信度, $\minconf$）を決める必要がある。
 これについては\ref{setting_sec}節で述べる。
+
+\section{変更推薦}\label{ranking_sec}
+参照履歴から抽出した相関ルールと変更履歴から抽出した相関ルールをもとに、
+変更推薦を行なう。
+
+\begin{comment}
+co-refの相関ルールを$Rule_{ref} =$ \\$\{(l_1,r_1), (l_2,r_2), \dots, (l_m,r_m)\}$とする。
+ここで($l_i$,$r_i$)は相関ルール$L \Ra R$を表し、$l_i$は左辺の成果物集合、$r_i$は右辺の成果物を表す（\ref{extractrules_sec}節参照）。
+変更推薦を行なう対象の参照履歴を$Reference = \{ref_1, ref_2, \dots, ref_n\}$、変更履歴を$Change = \{chg_1, chg_2, \dots, chg_n\}$とする。
+ここで$ref_i$と$chg_j$はそれぞれ参照セット、変更セットであり、$i=j$ならばこれらのセットは同じ開発行動を表す参照セット、変更セットである。
+すべての変更された成果物$c \in chg_i$に対して、 変更推薦$recom_{i,c}$
+\end{comment}
+
+相関ルールを$rule_i = (l_i,r_i)$と表す。
+($l_i$,$r_i$)は相関ルール$L \Ra R$と対応し、$l_i$は左辺の成果物集合、$r_i$は右辺の成果物を表す（\ref{extractrules_sec}節参照）。
+さらに、co-refの相関ルールの列を$Rule = \{rule_1, rule_2, \dots, rule_m\}$とする。
+また、変更推薦を行なう対象の参照セットを$ref$とする。$ref$は成果物の集合である。
+%また、$support((l_1,r_1)),\confidence((l_1,r_1))$を、それぞれ相関ルール$(l_1,r_1)$の$support$と$\confidence$とする。
+このとき、推薦結果$recom_{ref}$は「変更推薦される成果物とそのスコアの組」のリストであり、以下のように定義する。
+\begin{eqnarray}
+  recom_{Rule}\left(ref\right) = \bigcup_{rule_j \in Rule}
+    &\left\{
+    \begin{array}{ll}
+      \left\{\left(r_j,score_j \right)\right\} &(\textrm{if~} l_j \subseteq ref) \\
+      \emptyset &(\textrm{otherwise})\\
+    \end{array}
+    \right.\\
+    &\textrm{where}~score_j = \confidence(rule_j)\nonumber
+\end{eqnarray}
+$\left(r_j,score_j\right)$は成果物と数値の組であり、$r_j$は変更推薦される成果物を、$score_j$は$r_j$のスコアを表す。
+また、$\confidence(rule_j)$は$rule_j$のconfidenceを返す関数である。
+
+最終的に$recom_{ref}$の各要素$(r_j,score_j)$を$score_j$の高いものから1位、2位、$\dots$とし、成果物$r_j$の変更推薦順位とする。
+
 
 \section{評価メトリクス}\label{metrics_sec}
 \chapter{評価実験}\label{result_chap}
