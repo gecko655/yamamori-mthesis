@@ -500,7 +500,6 @@ Mylynの操作履歴は\ref{date_sec}節で述べたように時間の情報が�
 
 \section{改版履歴と操作履歴の取得}\label{obtainhistory_sec}
 まず、Gitリポジトリの改版履歴に含まれる全てのコミットから変更されたファイル、変更されたメソッドの2つのリストを抽出する。
-コミットから変更されたメソッドの情報を抽出する際は、Kataribe (Historage)\cite{Hata:2011,Fujiwara:2014}というツールを使用した。
 
 開発者がEGitというGit操作を行なうEclipseプラグインを利用してリポジトリにコミットしていた場合、EGitは活性化中のMylynタスクのBug IDをコミットメッセージに自動的に加える機能がある。
 Bug IDの情報がコミットメッセージに含まれている場合は、この情報をコミットと共に保存する。
@@ -512,12 +511,15 @@ Mylynログは\ref{mylyn_chap}で述べたようにBugzillaのバグ詳細ペー
 得られたMylynログから、{\it Kind}が"edit"であるような操作イベントを抜き出し、そのうちファイルレベルの操作イベントとメソッドレベルの操作イベントの2つのリストを抽出する。
 本章では、Mylynログに含まれる操作された要素のリストを、Gitリポジトリにおけるコミットと同様に{\bf セッション}と呼ぶ。
 
+コミットから変更されたメソッドの情報を抽出する際は、Kataribe (Historage)\cite{Hata:2011,Fujiwara:2014}というツールを使用した。
+
 得られたMylynログはEclipseの約300プロジェクト\footnote{\url{https://projects.eclipse.org/}}のいずれかの開発で記録されたものであるが、そのほとんどがMylynプロジェクトおよびそのサブプロジェクトであった。
 そのため、本章の実証実験の対象リポジトリはMylynプロジェクトに含まれる12リポジトリをGitHub\footnote{\url{https://github.com/eclipse?query=mylyn}}とした（12リポジトリの詳細は付録\ref{mylyn_repo_appendix}を参照）。
 また、Bugzillaへのクローリングの結果、6270のバグ詳細ページから8156のMylynログをダウンロードした。
 
 \section{改版履歴と操作履歴の結合}\label{joining_sec}
 改版履歴のコミットと操作履歴のセッションについて、同じ開発活動で作成されたと考えられるもの同士を紐付け、結合した履歴を作成する。
+
 Mylynログは、Bug ID毎に作成されるが、セッションに対応するコミットの情報はMylynログにもBug IDにも含まれていない。
 本稿においては、同じ開発活動で作成されたコミットとセッションは、以下の1)〜3)が成り立つと考え、これらをコミットとセッションを紐付ける際の条件とした（図\ref{concat_figure}）。
 \begin{enumerate}
@@ -618,6 +620,8 @@ MylynにはEGitと協調してEGitでコミットを行なった際に同時にM
 \end{eqnarray}
 そして、参照セットの列を{\bf 参照履歴}、変更セットの列を{\bf 変更履歴}と定義する。
 \section{相関ルールの抽出}\label{extractrules_sec}
+A-prioriアルゴリズムを利用した相関ルールマイニング手法を参照履歴、変更履歴に適用して、相関ルールを抽出する。
+
 Zimmermannらが実装したeROSE\cite{Zimmermann:2005}は、改版履歴から共変更の相関ルールを抽出し変更推薦を行なうツールである。
 この共変更相関ルールはファイル同士の変更の関係を表し、以下のように定義される。
 $x_1$をファイルの集合、$x_2$を1個のファイルとする。
@@ -664,14 +668,14 @@ A-prioriアルゴリズムを利用して相関ルールを抽出する際はパ
 相関ルールを$rule_i = (l_i,r_i)$と表す。
 ($l_i$,$r_i$)は相関ルール$L \Ra R$と対応し、$l_i$は左辺の成果物集合、$r_i$は右辺の成果物を表す（\ref{extractrules_sec}節参照）。
 さらに、co-refの相関ルールの列を$Rule = \{rule_1, rule_2, \dots, rule_m\}$とする。
-また、変更推薦を行なう対象の参照セットを$ref$とする。$ref$は成果物の集合である。
+また、変更推薦を行なう対象の参照セットを$source$とする。$source$は成果物の集合である。
 %また、$support((l_1,r_1)),\confidence((l_1,r_1))$を、それぞれ相関ルール$(l_1,r_1)$の$support$と$\confidence$とする。
-このとき、推薦結果$recom_{ref}$は「変更推薦される成果物とそのスコアの組」のリストであり、以下のように定義する。
+このとき、$source$を入力として得られる変更推薦結果$recom_{Rule}(source)$は「変更推薦される成果物とそのスコアの組」のリストであり、以下のように定義する。
 \begin{eqnarray}
-  recom_{Rule}\left(ref\right) = \bigcup_{rule_j \in Rule}
+  recom_{Rule}\left(source\right) = \bigcup_{rule_j \in Rule}
     &\left\{
     \begin{array}{ll}
-      \left\{\left(r_j,score_j \right)\right\} &(\textrm{if~} l_j \subseteq ref) \\
+      \left\{\left(r_j,score_j \right)\right\} &(\textrm{if~} l_j \subseteq source) \\
       \emptyset &(\textrm{otherwise})\\
     \end{array}
     \right.\\
@@ -680,18 +684,80 @@ A-prioriアルゴリズムを利用して相関ルールを抽出する際はパ
 $\left(r_j,score_j\right)$は成果物と数値の組であり、$r_j$は変更推薦される成果物を、$score_j$は$r_j$のスコアを表す。
 また、$\confidence(rule_j)$は$rule_j$のconfidenceを返す関数である。
 
-最終的に$recom_{ref}$の各要素$(r_j,score_j)$を$score_j$の高いものから1位、2位、$\dots$とし、成果物$r_j$の変更推薦順位とする。
+最終的に$recom_{Rule}(source)$の各要素$(r_j,score_j)$を$score_j$の高いものから1位、2位、$\dots$とし、成果物$r_j$の変更推薦順位とする。
 
 この変更推薦手法は\cite{Zimmermann:2005}で提案されたものである。
 ただし、\cite{Zimmermann:2005}では推薦される成果物をランキングする手法は提案されなかったため、本研究では新しく成果物にスコアをつけランキングを行なうよう手法を拡張した。
+
 \section{評価メトリクス}\label{metrics_sec}
-\begin{comment}
-co-refの相関ルールを$Rule_{ref} =$ \\$\{(l_1,r_1), (l_2,r_2), \dots, (l_m,r_m)\}$とする。
-ここで($l_i$,$r_i$)は相関ルール$L \Ra R$を表し、$l_i$は左辺の成果物集合、$r_i$は右辺の成果物を表す（\ref{extractrules_sec}節参照）。
-変更推薦を行なう対象の参照履歴を$Reference = \{ref_1, ref_2, \dots, ref_n\}$、変更履歴を$Change = \{chg_1, chg_2, \dots, chg_n\}$とする。
+前節までで行なったco-refの相関ルールによる変更推薦を評価する。
+
+ファイルレベルで600個、メソッドレベルで553個のコミット-セッションペアで評価を行なうが、この数は他の改版履歴を用いる研究と比べ比較的少ない数字である。
+この少ないデータセットの中で相関ルールの効果を評価するため、コミット-セッションペアに10-分割交差検定を適用し、相関ルールの平均的な性能を確認する。
+10-分割交差検定を実行する際は、コミット-セッションペアを時刻によってソートし、それぞれの区間に同じ数のペアが含まれるように区間を10分割する。
+さらに、1つの区間を評価セットに、他の9つの区間を相関ルール抽出に使う学習セットに選んで変更推薦を行なうことを10区間全てで繰り返し、それぞれの区間での変更推薦の評価を平均することで、最終的な相関ルールの評価とする。
+以上のような評価をco-refルールとco-chgルールで比較することで、参照履歴を用いて変更推薦を行なうことの利点や特徴について議論する。
+
+相関ルールによる変更推薦結果の評価は、評価する変更セットに含まれる成果物を1つずつ除去し、その成果物を正しく推薦できるかを確かめることで行なう。
+したがって、評価セットに含まれる各変更セットに対し、変更セットに含まれる成果物の数だけ変更推薦を適用し、それぞれの評価を平均することで、その変更セットの変更推薦時の評価とする。
+この実験設定は\cite{Zimmermann:2005}の{\it error prevention}の設定と類似するものである。
+
+評価尺度には$MRR$、$Recall$及びこれらの調和平均である$\fmeasure$を用いる。
+$MRR$（平均逆順位、mean reciprocal rank）はランキングを評価するときに用いられる評価尺度であり、正しく推薦した成果物の順位の逆数を、推薦回数で平均したものである。
+$MRR$は情報検索の分野で利用されているほか\cite{6233415}で変更推薦の評価を行なう際も利用されている。
+$Recall$（再現度）は推薦が行われた回数を表現する尺度である。$Recall$も情報検索の分野で利用されているほか、\cite{Zimmermann:2005}で変更推薦の評価を行なう際も利用されている。
+
+co-refの相関ルールに対するメトリクス$MRR,Recall,\fmeasure$の定義を以下に述べる。
+
+学習セットから抽出したco-refの相関ルールを$Rule_{ref}$とする。
+また評価セットの参照セットの列を$Reference = \{ref_1, ref_2, \dots, ref_n\}$、
+評価セットの変更セットの列を$Change = \{chg_1, chg_2, \dots, chg_n\}$とする。
 ここで$ref_i$と$chg_j$はそれぞれ参照セット、変更セットであり、$i=j$ならばこれらのセットは同じ開発行動を表す参照セット、変更セットである。
-すべての変更された成果物$c \in chg_i$に対して、 変更推薦$recom_{i,c}$
-\end{comment}
+
+\ref{ranking_sec}節の$recom_{Rule}(source)$を用いて、$feedback_i$、$MRR_i$、 $recall_i$を以下のように定義する。
+\begin{eqnarray}
+   feedback_i &=& \frac{1}{|chg_i|}
+  \sum_{c \in chg_i}
+  \left\{
+  \begin{array}{ll}
+    1 ~(\textrm{if~} recom_{Rule_{ref}}(i,c) \neq \emptyset)\\
+    0 ~(\textrm{otherwise})\\
+  \end{array}
+  \right.\\
+  MRR_i &=& \frac{1}{feedback_i}\frac{1}{|chg_i|}
+  \sum_{c \in chg_i}
+  \left\{
+  \begin{array}{ll}
+    getRR\left( recom_{Rule_{ref}}(i,c), c \right) 
+    &~(\textrm{if~} recom_{Rule_{ref}}(i,c) \textrm{~contains~} c)\\
+    0 &~(\textrm{otherwise})\\
+  \end{array}
+  \right.\\
+  recall_i &=& \frac{1} {|chg_i|} \sum_{c \in chg_i}
+  \left\{
+  \begin{array}{ll}
+    1 ~(\textrm{if~} recom_{Rule_{ref}}(i,c) \textrm{~contains~} c)\\
+    0 ~(\textrm{otherwise})\\
+  \end{array}
+  \right.\\
+           &~&where~recom_{Rule}(i,c) = recom_{Rule}(ref_i - \{c\})
+\end{eqnarray}
+ここで、$recom_{Rule}(i,c)$は、$i$番目の評価セット$ref_i$と、$ref_i$に含まれる成果物$c$に対し、$ref_i$から$c$を除いた成果物の集合を入力として変更推薦を行なった時の変更推薦リストである。
+$getRR\left( recom_{Rule_{ref}}(i,c), c \right)$は、変更推薦$recom_{Rule_{ref}}(i,c)$内での$c$の順位の逆数（逆順位）を返す関数である。
+
+最終的に
+$MRR_i$と$recall_i$の平均を算出し、最終的なメトリクス$MRR$と$Recall$とする。
+加えて、$\fmeasure$を$MRR$と$Recall$の調和平均と定義する。
+\begin{equation}
+  \fmeasure = 2\cdot\frac{MRR \cdot Recall}{MRR+Recall}
+\end{equation}
+
+「変更推薦が行われた時の推薦精度」を算出するため、\cite{Zimmermann:2005}におけるPrecisionと同様に、$MRR_i$を算出する際に$feedback_i$を分母として用いている。
+このとき、$feedback_i=0$だった（そのコミットで1度も変更推薦を行なうことがなかった）場合は、$MRR_i$自体を算出せず、$MRR$の計算対象から除外する。
+一方、「変更推薦が行われたかどうかにかかわらない、全コミット中の変更のし忘れを検出した割合」を算出するため、\cite{Zimmermann:2005}とは異なり$recall_i$の算出時には$feedback_i$を分母として用いない。
+
+co-chgの相関ルールに対するメトリクスの定義は、上記の定義のうち$Rule_{ref}$を$Rule_{chg}$に、$Reference$を$Change$に置き換えたものである。
+得られた$Rule_{ref}$と$Rule_{chg}$のメトリクスを比較することで、それぞれのルールの特徴や変更推薦時の効果について議論する。
 
 \chapter{評価実験}\label{result_chap}
 本章では、\ref{experiment_chap}章で説明した実験について、実施した実験の詳細とその結果について述べる。
