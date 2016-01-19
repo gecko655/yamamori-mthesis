@@ -659,16 +659,7 @@ A-prioriアルゴリズムを利用して相関ルールを抽出する際はパ
 これについては\ref{setting_sec}節で述べる。
 
 \section{変更推薦}\label{ranking_sec}
-参照履歴から抽出した相関ルールと変更履歴から抽出した相関ルールをもとに、
-変更推薦を行なう。
-
-\begin{comment}
-co-refの相関ルールを$Rule_{ref} =$ \\$\{(l_1,r_1), (l_2,r_2), \dots, (l_m,r_m)\}$とする。
-ここで($l_i$,$r_i$)は相関ルール$L \Ra R$を表し、$l_i$は左辺の成果物集合、$r_i$は右辺の成果物を表す（\ref{extractrules_sec}節参照）。
-変更推薦を行なう対象の参照履歴を$Reference = \{ref_1, ref_2, \dots, ref_n\}$、変更履歴を$Change = \{chg_1, chg_2, \dots, chg_n\}$とする。
-ここで$ref_i$と$chg_j$はそれぞれ参照セット、変更セットであり、$i=j$ならばこれらのセットは同じ開発行動を表す参照セット、変更セットである。
-すべての変更された成果物$c \in chg_i$に対して、 変更推薦$recom_{i,c}$
-\end{comment}
+参照履歴から抽出した相関ルールと変更履歴から抽出した相関ルールをもとに、変更推薦を行なう。
 
 相関ルールを$rule_i = (l_i,r_i)$と表す。
 ($l_i$,$r_i$)は相関ルール$L \Ra R$と対応し、$l_i$は左辺の成果物集合、$r_i$は右辺の成果物を表す（\ref{extractrules_sec}節参照）。
@@ -691,8 +682,17 @@ $\left(r_j,score_j\right)$は成果物と数値の組であり、$r_j$は変更�
 
 最終的に$recom_{ref}$の各要素$(r_j,score_j)$を$score_j$の高いものから1位、2位、$\dots$とし、成果物$r_j$の変更推薦順位とする。
 
-
+この変更推薦手法は\cite{Zimmermann:2005}で提案されたものである。
+ただし、\cite{Zimmermann:2005}では推薦される成果物をランキングする手法は提案されなかったため、本研究では新しく成果物にスコアをつけランキングを行なうよう手法を拡張した。
 \section{評価メトリクス}\label{metrics_sec}
+\begin{comment}
+co-refの相関ルールを$Rule_{ref} =$ \\$\{(l_1,r_1), (l_2,r_2), \dots, (l_m,r_m)\}$とする。
+ここで($l_i$,$r_i$)は相関ルール$L \Ra R$を表し、$l_i$は左辺の成果物集合、$r_i$は右辺の成果物を表す（\ref{extractrules_sec}節参照）。
+変更推薦を行なう対象の参照履歴を$Reference = \{ref_1, ref_2, \dots, ref_n\}$、変更履歴を$Change = \{chg_1, chg_2, \dots, chg_n\}$とする。
+ここで$ref_i$と$chg_j$はそれぞれ参照セット、変更セットであり、$i=j$ならばこれらのセットは同じ開発行動を表す参照セット、変更セットである。
+すべての変更された成果物$c \in chg_i$に対して、 変更推薦$recom_{i,c}$
+\end{comment}
+
 \chapter{評価実験}\label{result_chap}
 本章では、\ref{experiment_chap}章で説明した実験について、実施した実験の詳細とその結果について述べる。
 
