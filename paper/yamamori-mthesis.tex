@@ -6,6 +6,7 @@
 \usepackage[dvipdfmx]{color}
 \usepackage{listings}
 \usepackage{comment}
+\usepackage{ascmac}
 
 %%% for make figures in one page
 \renewcommand\floatpagefraction{.001}
@@ -20,6 +21,7 @@
 \newcommand{\minconf}{mincon\!f}
 \newcommand{\confidence}{con\!f\!idence}
 \newcommand{\fmeasure}{F\mhyphen measure}
+
 
 
 \renewcommand{\lstlistingname}{リスト}
@@ -51,7 +53,6 @@
 }
 
 
-
 \usepackage[mthesis,draft]{salab}    % 草稿では draft を追加
 %\usepackage[mthesis]{salab}         % 本番はこっち
 
@@ -76,9 +77,11 @@
 
 \chapter*{概要}
 本論文では，...
+\TODO{}
 
 \chapter*{Abstract}
 This dissertation studies ...
+\TODO{}
 
 \tableofcontents
 \listoffigures
@@ -138,6 +141,7 @@ Mylynの操作履歴と改版履歴の情報を結合することにより、操
 さらに、得られた操作履歴を改版履歴ベースの変更支援手法に適用することで、
 実開発において得られた操作履歴が変更支援に有効であるかどうかを検証する。
 \section{本論文の構成}
+\TODO{}
 \chapter{関連研究}
 \section{変更波及解析による変更支援}
 ソースコードの静的解析を用いた変更伝搬箇所特定の研究が行われてきた\cite{792645}。
@@ -959,10 +963,56 @@ co-refルールには、490ファイルが含まれており、全体のファ�
 メソッドレベルの変更推薦においては、変更すべき成果物の検出割合はファイルレベルの変更推薦の半分以下となった。
 これは、ファイルレベルとくらべ、開発者は機能のメンテナンスを行なう際により多くの関係のないメソッドを参照するため、このような参照行動が操作履歴に記録され、ここから有益でない相関ルールが抽出されてしまったためと考えられる。
 \section{共参照ルールが有効だった変更推薦の例}
+交差検定を実施した際、co-chgの相関ルールでは変更推薦の候補を出力することが出来なかったが、co-refの相関ルールでは正しく変更推薦を行えた場合があった。
+このときの状況について説明する。
+
+あるコミットには以下の4つのファイルが含まれていた。
+\begin{itembox}{コミットに含まれていたファイル名}
+  /tasks/ui/search/RepositorySearchResultView.java \\
+  /tasks/ui/search/SearchResultContentProvider.java \\
+  /tasks/ui/search/SearchResultTreeContentProvider.java \\
+  /tasks/ui/TaskSearchPage.java
+\end{itembox}
+このコミットと結合されたセッションには、以上のファイルに加えさらに合計で7つのファイルが含まれていた。
+\begin{itembox}{セッションに含まれていたファイル名}
+  (コミットに含まれている4ファイル)\\
+  /tasks/ui/views/TaskListContentProvider.java \\
+  /tasks/ui/search/SearchResultTableContentProvider.java\\
+  /tasks/ui/wizards/AbstractRepositoryQueryPage.java
+\end{itembox}
+ただし、これらのファイルはすべて"/org/eclipse/mylyn/internal/"フォルダの下にあり、上記のリストではこのフォルダ以下のファイルパスを記載している。
+
+このコミットを評価する際、co-chgの相関ルールには適用可能なものがなかったのに対し、co-refの相関ルールでは以下の4つの相関ルールが適用可能であった。
+\begin{itembox}{適用可能なco-refの相関ルール}
+  \begin{enumerate}
+    \item  \{SearchResultContentProvider.java\} $\Rightarrow$ RepositorySearchResultView.java
+    \item \{SearchResultContentProvider.java\} $\Rightarrow$ SearchResultTreeContentProvider.java
+    \item \{SearchResultContentProvider.java, ~SearchResultTreeContentProvider.java\} 
+      \\$\Rightarrow$ RepositorySearchResultView.java
+    \item \{SearchResultContentProvider.java, ~RepositorySearchResultView.java\} \\
+  $\Rightarrow$ SearchResultTreeContentProvider.java
+  \end{enumerate}
+\end{itembox}
+
+1番目のルール(\{SearchResultContentProvider.java\} $\Rightarrow$ RepositorySearchResultView.java)に注目する。
+SearchResultContentProviderはEclipseのビューの一部分(View part)を提供する機能が実装されているクラスであり、抽象クラスである。
+また、このクラスはRepositorySearchResultViewクラスにある8つのフィールド変数のうちの一つであり、
+RepositorySearchResultViewを変更しようとする開発者は、一貫性が維持できているか確認するためSearchResultContentProviderを参照する必要がある。
+したがって、操作履歴上には開発者がこれらのファイルを同時に参照したことが何度も記録され、その結果操作履歴を用いて"\{SearchResultContentProvider.java\} $\Rightarrow$ RepositorySearchResultView.java"の相関ルールが抽出され、このコミットで正しく変更推薦を行なうことが出来た。
+
+しかし、この2つのファイル間に張られるようなco-chgの相関ルールは抽出されなかった。
+これはSearchResultContentProviderが改版履歴上で変更されることがほとんどなかったためである。
+
+この例のように、変更されることが少ないファイルに対する相関ルールを抽出することができ、そのような相関ルールで実際に正しい変更推薦を行える点で、操作履歴を用いた変更推薦は改版履歴のみを用いるより推薦精度が向上したと考えられる。
 
 \section{妥当性への脅威}
+\TODO{}
+\subsection{内的妥当性}
+\subsection{外的妥当性}
+\subsection{構造的妥当性}
 
 \chapter{結論}
+\TODO{}
 \chapter*{謝辞}
 研究を進めるにあたり、終始熱心なご指導を頂いた小林隆志先生に感謝の意を表します。
 
