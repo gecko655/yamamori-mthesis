@@ -710,17 +710,17 @@ $Recall$（再現度）は推薦が行われた回数を表現する尺度であ
 co-refの相関ルールに対するメトリクス$MRR,Recall,\fmeasure$の定義を以下に述べる。
 
 学習セットから抽出したco-refの相関ルールを$Rule_{ref}$とする。
-また評価セットの参照セットの列を$Reference = \{ref_1, ref_2, \dots, ref_n\}$、
+また評価セットの参照セットの列を$Re\!f\!erence = \{ref_1, ref_2, \dots, ref_n\}$、
 評価セットの変更セットの列を$Change = \{chg_1, chg_2, \dots, chg_n\}$とする。
 ここで$ref_i$と$chg_j$はそれぞれ参照セット、変更セットであり、$i=j$ならばこれらのセットは同じ開発行動を表す参照セット、変更セットである。
 
-\ref{ranking_sec}節の$recom_{Rule}(source)$を用いて、$feedback_i$、$MRR_i$、 $recall_i$を以下のように定義する。
+\ref{ranking_sec}節の$recom_{Rule}(source)$を用いて、参照セット$ref_i$に対するメトリクス$feedback_i$、$MRR_i$、 $recall_i$を以下のように定義する。
 \begin{eqnarray}
    feedback_i &=& \frac{1}{|chg_i|}
   \sum_{c \in chg_i}
   \left\{
   \begin{array}{ll}
-    1 ~(\textrm{if~} recom_{Rule_{ref}}(i,c) \neq \emptyset)\\
+    1 ~(\textrm{if~} recom_{Rule_{ref}}(ref_i,c) \neq \emptyset)\\
     0 ~(\textrm{otherwise})\\
   \end{array}
   \right.\\
@@ -728,25 +728,26 @@ co-refの相関ルールに対するメトリクス$MRR,Recall,\fmeasure$の定�
   \sum_{c \in chg_i}
   \left\{
   \begin{array}{ll}
-    getRR\left( recom_{Rule_{ref}}(i,c), c \right) 
-    &~(\textrm{if~} recom_{Rule_{ref}}(i,c) \textrm{~contains~} c)\\
+    getRR\left( recom_{Rule_{ref}}(ref_i,c), c \right) 
+    &~(\textrm{if~} recom_{Rule_{ref}}(ref_i,c) \textrm{~contains~} c)\\
     0 &~(\textrm{otherwise})\\
   \end{array}
   \right.\\
   recall_i &=& \frac{1} {|chg_i|} \sum_{c \in chg_i}
   \left\{
   \begin{array}{ll}
-    1 ~(\textrm{if~} recom_{Rule_{ref}}(i,c) \textrm{~contains~} c)\\
+    1 ~(\textrm{if~} recom_{Rule_{ref}}(ref_i,c) \textrm{~contains~} c)\\
     0 ~(\textrm{otherwise})\\
   \end{array}
   \right.\\
-           &~&where~recom_{Rule}(i,c) = recom_{Rule}(ref_i - \{c\})
+           &~&where~recom_{Rule}(ref_i,c) = recom_{Rule}(ref_i - \{c\})
 \end{eqnarray}
-ここで、$recom_{Rule}(i,c)$は、$i$番目の評価セット$ref_i$と、$ref_i$に含まれる成果物$c$に対し、$ref_i$から$c$を除いた成果物の集合を入力として変更推薦を行なった時の変更推薦リストである。
-$getRR\left( recom_{Rule_{ref}}(i,c), c \right)$は、変更推薦リスト$recom_{Rule_{ref}}(i,c)$内での$c$の順位の逆数（逆順位）を返す関数である。
+ここで、$recom_{Rule}(ref_i,c)$は、$i$番目の評価セット$ref_i$と、$ref_i$に含まれる成果物$c$に対し、$ref_i$から$c$を除いた成果物集合を入力として変更推薦を行なった時の変更推薦リストである。
+$getRR\left( recom_{Rule_{ref}}(ref_i,c), c \right)$は、変更推薦リスト$recom_{Rule_{ref}}(ref_i,c)$内での$c$の順位の逆数（逆順位）を返す関数である。
 
-最終的に
-$MRR_i$と$recall_i$の平均を算出し、最終的なメトリクス$MRR$と$Recall$とする。
+
+$Re\!f\!erence = \{ref_1, ref_2, \dots, ref_n\}$に含まれる全ての$ref_i$に対して
+$MRR_i$と$recall_i$を算出し、その算術平均を最終的なメトリクス$MRR$と$Recall$とする。
 加えて、$\fmeasure$を$MRR$と$Recall$の調和平均と定義する。
 \begin{equation}
   \fmeasure = 2\cdot\frac{MRR \cdot Recall}{MRR+Recall}
