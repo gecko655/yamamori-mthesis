@@ -820,25 +820,24 @@ co-refルールには、490ファイルが含まれており、全体のファ�
 \section{$MRR$と$Recall$、$\fmeasure$}
 \begin{figure}[p]
   \centering
-  \includegraphics[width = 0.95\linewidth]{resource/mrgraph_f.pdf}
-  \caption{ファイルレベルでの$MRR$と$Recall$の関係}
-  \label{f_mrgraph}
-\end{figure}
-\begin{figure}[p]
-  \centering
   \includegraphics[width = 0.95\linewidth]{resource/fmeasure_f.pdf}
   \caption{ファイルレベルにおける$\fmeasure$}
   \label{f_fmeasure}
 \end{figure}
+\begin{figure}[p]
+  \centering
+  \includegraphics[width = 0.95\linewidth]{resource/mrgraph_f.pdf}
+  \caption{ファイルレベルでの$MRR$と$Recall$の関係}
+  \label{f_mrgraph}
+\end{figure}
 本節では、10-分割交差検定により実際に相関ルールを用いて変更推薦を行い、その精度を$MRR$と$Recall$およびその調和平均である$\fmeasure$から評価する。
+メソッドレベルとファイルレベルにおける$\fmeasure$を、図\ref{f_fmeasure}と図\ref{m_fmeasure}に、$MRR$と$Recall$の関係を、図\ref{f_mrgraph}と図\ref{m_mrgraph}に示す。
 
-メソッドレベルとファイルレベルにおける$MRR$と$Recall$の関係を、図\ref{f_mrgraph}と図\ref{m_mrgraph}に示す。
-点に付して表示している数値は$\minconf$の値である。
+図\ref{f_mrgraph}と図\ref{m_mrgraph}で、点に付して表示している数値は$\minconf$の値である。
 メソッドレベルにおけるco-chgルールの変更推薦では、$minsup \geq 0.006$のときに変更推薦を行なうことが一切出来なかったため、$minsup = 0.006$のグラフは原点にのみプロットしている。
 
-メソッドレベルとファイルレベルにおける$\fmeasure$を、図\ref{f_fmeasure}と図\ref{m_fmeasure}に示す。
 
-\subsection{ファイルレベルでの変更推薦}
+\subsection{ファイルレベルでの変更推薦}\label{file_result_sec}
 図\ref{f_fmeasure}によれば、co-refルールを用いた時の最大$\fmeasure$は0.204 ($minsup=0.002, \minconf =0.1$)であり、co-chgルールを用いた時の最大$\fmeasure$が0.171 ($minsup=0.002, \minconf =0.1$)であったため、co-chgルールと比較してco-refルールは$\fmeasure$が19.3\%向上した。
 したがって、ファイルレベルではco-refルールを使うことにより、co-chgルールを使う時と比べ変更推薦の普遍的な性能が向上したと言える。
 
@@ -900,19 +899,19 @@ co-refルールには、490ファイルが含まれており、全体のファ�
 ただし、co-chgルールで変更推薦した際$minsup=0.006$のパラメータにおいて$MRR=Recall=0$となる結果が存在するため、この結果は検定時に除外した。
 表中で太字となっている数値は、有意水準$p=0.025$において有意差が存在した部分であり、全ての$minsup$において、co-refルールによる変更推薦の$\fmeasure$と$Recall$の分布はco-chgルールよりも大きいことが示された。
 
-\subsection{メソッドレベルでの変更推薦}
+\subsection{メソッドレベルでの変更推薦}\label{method_result_sec}
 
-\begin{figure}[p]
-  \centering
-  \includegraphics[width = 0.95\linewidth]{resource/mrgraph_m.pdf}
-  \caption{メソッドレベルでの$MRR$と$Recall$の関係}
-  \label{m_mrgraph}
-\end{figure}
 \begin{figure}[p]
   \centering
   \includegraphics[width = 0.95\linewidth]{resource/fmeasure_m.pdf}
   \caption{メソッドレベルにおける$\fmeasure$}
   \label{m_fmeasure}
+\end{figure}
+\begin{figure}[p]
+  \centering
+  \includegraphics[width = 0.95\linewidth]{resource/mrgraph_m.pdf}
+  \caption{メソッドレベルでの$MRR$と$Recall$の関係}
+  \label{m_mrgraph}
 \end{figure}
 メソッドレベルの変更推薦の$\fmeasure$はファイルレベルの変更推薦と同様の傾向を示している（図\ref{m_fmeasure}）。
 メソッドレベルの変更推薦におけるco-refルールを用いた時の最大$\fmeasure$は$0.084$ ($minsup=0.002,\minconf=0.7$)であり、co-chgルールを用いた時の最大$\fmeasure$は0.025 ($minsup=0.002,\minconf=0.3$)であったため、co-chgルールと比較してco-refルールは$\fmeasure$が3.4倍となった。
@@ -945,7 +944,22 @@ co-refルールには、490ファイルが含まれており、全体のファ�
 ただし、$minsup=0.006$のとき、co-chgルールはすべてのパラメータで$MRR=Recall=0$だったため、表\ref{pvalue_method}に含めなかった。
 表中で太字となっている数値は、有意水準$p=0.025$において有意差が存在した部分であり、全ての$minsup$において、co-refルールによる変更推薦の$\fmeasure$と$Recall$の分布はco-chgルールよりも大きいことが示された。
 
+\subsection{ファイルレベル、メソッドレベルにおける変更推薦のまとめ}
+\ref{file_result_sec}節および\ref{method_result_sec}節の結果をまとめると以下のようになる。
+
+まず、ファイルレベルとメソッドレベルの両方において、操作履歴を用いて抽出した相関ルールは、改版履歴のみから抽出した相関ルールと比べ有意に$\fmeasure$を向上させることができたため、変更推薦の普遍的な性能が向上したと言える。
+実験結果の詳細を見ると、操作履歴を用いて相関ルールを抽出することにより、変更すべき成果物の検出割合が大きく改良され、また、検出割合が同数になるようなパラメータで変更推薦を行なうと、その推薦精度が向上することがわかった。
+推薦精度が最大となるようパラメータを調整すると、操作履歴から抽出した相関ルールは改版履歴から抽出した相関ルールよりも推薦精度が悪化したが、これは「変更漏れを防ぐ」という変更推薦の目的を考えると、推薦精度よりも成果物の検出割合のほうが重要であり、推薦精度の悪化は許容できる。
+したがって全体としては、操作履歴を用いて変更推薦を行うことにより、改版履歴のみを用いるよりも変更推薦の効果を高めることが出来たといえる。
+
+ファイルレベルの変更推薦では相関ルールの数が増えることなく変更推薦の性能が向上した。
+これは、操作履歴を用いて相関ルールを抽出するとより多くの有益な相関ルールを抽出できると同時に有益でない相関ルールが減ったことを示しており、
+このことからも操作履歴から抽出した相関ルールは有益であるといえる。
+
+メソッドレベルの変更推薦においては、変更すべき成果物の検出割合はファイルレベルの変更推薦の半分以下となった。
+これは、ファイルレベルとくらべ、開発者は機能のメンテナンスを行なう際により多くの関係のないメソッドを参照するため、このような参照行動が操作履歴に記録され、ここから有益でない相関ルールが抽出されてしまったためと考えられる。
 \section{共参照ルールが有効だった変更推薦の例}
+
 \section{妥当性への脅威}
 
 \chapter{結論}
