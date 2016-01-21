@@ -480,7 +480,7 @@ MylynログはMylynプラグイン自身の動作に不可欠であるほか、�
 以上のようなMylynの拡張を行なうことで、
 \cite{6233415,KatoJapanese:2011,ss2012-76,ss2013-84,Yamamori:2016}の手法に対してMylynログを適用することができるようになる。
 
-\chapter{Mylynの操作履歴による変更推薦}\label{experiment_chap}
+\chapter{Mylynの操作履歴による変更推薦手法}\label{experiment_chap}
 \section{概要}
 \ref{mylynplus_chap}章では、今後記録されるMylynログに細粒度な操作の情報を付け足すことで、既存の細粒度操作履歴を用いる変更支援手法にMylynログを適用するアプローチを採用した。
 本章では、Mylynログに細粒度な情報を付け足すことなく、これまでに記録されたMylynログを用いて変更支援を行なえるかどうかを調査する。
@@ -492,20 +492,6 @@ Mylynの操作履歴は\ref{date_sec}節で述べたように時間の情報が�
 このようにして得られた操作履歴はGitのコミットの時刻を用いて時間の情報が復元され、またコミットに含まれるファイルやメソッドの情報をもとに変更と参照の情報が復元される。
 検証の際は、既存の改版履歴ベースの変更推薦手法に改版履歴を適用する従来の手法を比較対象とし、推薦精度が向上しているかを確認する。
 
-%実証実験は以下の4段階で行なう（図\ref{procedure}）。
-%\begin{enumerate}
-%  \item 改版履歴と操作履歴を取得する（\ref{obtainhistory_sec}節）
-%  \item 得られた改版履歴と操作履歴を突合する（\ref{joining_sec}節）
-%  \item 相関ルールを抽出する（\ref{extractrules_sec}節）
-%  \item 変更推薦を行なう（\ref{ranking_sec}節）
-%  \item メトリクスを用いて相関ルールの質を評価する（\ref{metrics_sec}節）
-%\end{enumerate}
-%\begin{figure}[tb]
-%  \centering
-%  \includegraphics[width = \linewidth]{resource/procedure.pdf}
-%  \caption{実証実験の手順}
-%  \label{procedure}
-%\end{figure}
 
 \section{Mylynの操作履歴を用いた変更推薦手法}\label{method_sec}
 Mylynログに記録される操作の情報は、Mylynのタスク毎に1つのXMLファイルに出力される。
@@ -517,7 +503,7 @@ Mylynログに記録される操作の情報は、Mylynのタスク毎に1つの
 \begin{figure}[tb]
   \centering
   \includegraphics[width = \linewidth]{resource/proposal.pdf}
-  \caption{変更推薦手法の概要}
+  \caption{変更推薦手法の概要 （この図では$\getScore(rule_j)$には$\confidence$を用いている）}
   \label{proposal}
 \end{figure}
 
@@ -597,8 +583,8 @@ $support$は左辺と右辺の区別なく、両辺のアイテムが含まれ�
     \includegraphics[width = 0.4\textwidth]{resource/TimesPlot.pdf}
     \label{times_plot}
   }
+  \caption{各評価値でランキングを行なった時のスコア付けの概略 （色が赤に近い部分ほどスコアが高いことを示す）}
   \label{scoring_plot}
-  \caption{各評価値でランキングを行なった時のスコア付けの概略}
 \end{figure}
 本研究では3種類の$\getScore(rule_j)$を提案する。
 \begin{enumerate}
@@ -616,10 +602,16 @@ $support$は左辺と右辺の区別なく、両辺のアイテムが含まれ�
 ただし、\cite{Zimmermann:2005}では推薦される成果物をランキングする手法は提案されなかったため、本研究では新しく成果物にスコアをつけランキングを行なうよう手法を拡張した。
 
 \section{データセットの作成}\label{data_sec}
+\begin{figure}[tb]
+  \centering
+  \includegraphics[width = 0.5\linewidth]{resource/dataset.pdf}
+  \caption{データセット作成の手順}
+  \label{dataset}
+\end{figure}
 Mylynの操作履歴を用いた変更推薦の効果を検証するため、現在までに記録されたMylynログを収集する。
 そしてこのMylynログから、操作された成果物集合（セッション）のリストをファイルレベル及びメソッドレベルで生成する。
 Mylynの操作履歴による変更推薦の効果を検証するためには、正解セットとして、Mylynログに記録された操作によってどの成果物が実際に変更されたかの情報が必要である。
-この情報を擬似的に復元するために、Mylynの操作履歴をGitの改版履歴と突合し、セッションとコミットのペアを作成することで、あるセッションで変更された成果物の情報をコミットから得られるようにする。
+この情報を擬似的に復元するために、Mylynの操作履歴をGitの改版履歴と突合し、セッションとコミットのペアを作成することで、あるセッションで変更された成果物の情報をコミットから得られるようにする（図\ref{dataset}）。
 \subsection{改版履歴と操作履歴の取得}\label{obtainhistory_sec}
 Mylynの操作履歴を用いる変更推薦手法の効果を確認するため、
 現在入手できるMylynログをWebクローニングによってすべて取得する。
@@ -750,18 +742,31 @@ MylynにはEGitと協調してEGitでコミットを行なった際に同時にM
 
 
 \chapter{評価実験}\label{result_chap}
-本章では、\ref{experiment_chap}章で説明した実験について、実施した実験の詳細とその結果について述べる。
+本章では、\ref{experiment_chap}章で説明した手法について、実施した実験の詳細とその結果について述べる（図\ref{procedure}）。
+
+\begin{figure}[tb]
+  \centering
+  \includegraphics[width = 0.7\linewidth]{resource/procedure.pdf}
+  \caption{実証実験の手順}
+  \label{procedure}
+\end{figure}
 
 \section{実験設定}\label{setting_sec}
 \subsection{実験パラメータ}
 前章（\ref{extractrules_sec}節）で述べたように、LCExtractorに使われているA-prioriアルゴリズムはminimum support（最小支持度, $minsup$）とminimum confidence（最小信頼度, $\minconf$）の2つのパラメータが必要となる。
-本実験では、$minsup$は0.002, 0.004, 0.006の3種類を用いた。
-$\minconf$は0.1から0.9まで0.1刻みで9種類用いた。
-したがって、$minsup$と$\minconf$の組み合わせ数は27通りである。
+また、\ref{ranking_sec}節で述べたように$\getScore(rule_j)$は$\confidence$、$suport$、$\confidence*support$の3通りがある。
 
-$getScore(rule_j)$（\ref{ranking_sec}節参照）は、
-\ref{rulesize_sec}節および\ref{mainresult_sec}節では$\confidence$を用い、
-\ref{varyscoring_sec}節では$getScore(rule_j)$を変化させて実験を行なう。
+本実験のうち\ref{rulesize_sec}節および\ref{mainresult_sec}節では、
+$minsup$は0.002, 0.004, 0.006の3種類、
+$\minconf$は0.1から0.9まで0.1刻みで9種類を用いた。
+したがって、$minsup$と$\minconf$の組み合わせ数は27通りである。
+$\getScore(rule_j)$は$\confidence$とした。
+
+\ref{varyscoring_sec}節では、
+変更推薦を行える回数を維持しながら推薦精度を向上することを目的とし、
+$minsup$は0.002で固定として、
+$\getScore(rule_j)$は$\confidence$、$suport$、$\confidence*support$の3通りを用いた。
+$\minconf$は0.1から0.9まで0.1刻みで9種類を用いた。
 
 \subsection{参照履歴と変更履歴を用いた相関ルールの抽出}
 参照履歴を用いた変更推薦の効果を測定するため、\ref{extractrules_sec}節のように参照履歴と変更履歴の両方から相関ルールを抽出して変更推薦を行なう。
@@ -1093,10 +1098,45 @@ RepositorySearchResultViewを変更しようとする開発者は、一貫性が
 BugzillaにアップロードされているMylynログはプログラムの編集時に開発者の操作を記録したものだけでなく、Mylynプラグインの利用者がクラッシュリポートとしてアップロードしたものも含まれている。
 しかし、これらを区別する方法がないため、開発者の操作が記録されたMylynログとクラッシュリポートのMylynログを区別せずに用いている。
 Gitの改版履歴と結合する際に、作成日時の差を2分以内とするなど厳しい条件を使っているためほとんどのクラッシュリポートのMylynログは除去されているものと考えられるが、偶然条件が揃った場合はクラッシュリポートのMylynログを結合している可能性がある。
-\TODO{}
-\subsection{外的妥当性}
-\subsection{構造的妥当性}
 
+操作された成果物が実験対象のリポジトリに含まれていないようなMylynログもフィルタせずに実験に使用している。
+これは、Mylynログに複数のGitリポジトリの成果物への操作が記録されている可能性があるためである。
+本研究で実験対象としたリポジトリ{\it mylyn.tasks}は12個あるMylynプロジェクトのサブプロジェクトのうちの1つであるため、
+Mylynプロジェクトの開発者は{\it mylyn.tasks}を変更するのと同時に他のMylynのサブプロジェクトを見ている可能性がある。
+ただし、{\it mylyn.tasks}のGitリポジトリのコミットと結合できなかったMylynログは使用していないため、
+このフィルタリングによって、対象外のリポジトリを操作したMylynログは実験から除外できているものと考えられる。
+
+Mylynのタスクを活性化することを忘れていた開発者がいた場合、一部の操作は操作履歴に記録されない。
+実際の操作がMylynログに記録されない状況は、タスクを活性化する以前に操作を行い、タスクを活性化した後では1度も操作を行わなかったような成果物があった場合にのみ発生する。
+実際の操作が正確に記録されていた場合、実験結果が異なる可能性がある。
+
+本研究では、コミットとセッションを全く同じ重み付けで利用している。
+一般的に、実装やバグ修正等を行なうコミットやセッションは、リファクタリング等を行なうコミットやセッションよりも重要と考えられる。
+しかし、相関ルールを抽出する際はこのようなことを考慮していない。
+
+コミットとセッションを結合する際にそれらのユニークな識別子を利用せず、3つのユニークでない属性値を用いた。
+したがって、同じ開発活動中に記録されたものではないコミットやセッションを結合させた可能性がある。
+GitとMylyn間での作成者のアカウント名のマッピングは、アカウント名が類似しているかどうかをもとに手動で行なった。
+このマッピングのリストは注意深く作成したが、開発者本人にインタビューをしておらず、間違いが含まれている可能性がある。
+
+
+\subsection{外的妥当性}
+今回実証実験に用いたデータセットはファイルレベルで600トランザクション、メソッドレベルで553トランザクションであり、他の改版履歴を用いた研究と比べると少ない。
+しかし、このデータセットは複数のリリースにまたがって記録されたものであり、開発中の操作の特徴がデータセット中によく表現出来ているものと考えられる。
+データセッが小さいため10−分割交差検定を利用して推薦精度の検証を行ったが、これによりGitの改版履歴に含まれる時系列の情報を無視している。
+実際に本手法を開発現場で適用するには、推薦システムは過去に蓄積されたデータセットに基いて変更推薦を行う必要がある。
+Mylynログとコミットの結合の条件を緩めるか、バグリポートとコミットを結合させる他の手法を導入することにより、データセットの数は増加させることができると考えられる。
+
+メトリクスを定義する際、\cite{Zimmermann:2005}で定義された"{\it error prevention}"のメトリクスを参考にしたが、実験結果は\cite{Zimmermann:2005}と比較しなかった。
+これは$Precision$ではなく推薦順位を考慮する$MRR$を用いたことや、$Recall$の計算方法が$feedback_i$を用いないという点で異なるためである。
+
+
+\subsection{構造的妥当性}
+今回の実証実験では1つのGitリポジトリのみを実験対象とした。
+変更推薦手法の効果の一般性を確かめるためには他のリポジトリに対する実験を行なう必要がある。
+
+検証結果の統計的有意性を確認するため、ウィルコクソンの符号順位検定を利用した。
+これは、データの分布が不明なものを検定するため、適切である。
 \chapter{結論}
 \TODO{}
 \chapter*{謝辞}
