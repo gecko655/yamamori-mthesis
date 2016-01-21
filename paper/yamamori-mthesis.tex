@@ -7,6 +7,7 @@
 \usepackage{listings}
 \usepackage{comment}
 \usepackage{ascmac}
+\usepackage{subfigure}
 
 %%% for make figures in one page
 \renewcommand\floatpagefraction{.001}
@@ -487,7 +488,7 @@ MylynログはMylynプラグイン自身の動作に不可欠であるほか、�
 Mylynの操作履歴は\ref{date_sec}節で述べたように時間の情報が不完全であり、\ref{kind_sec}節で述べたように変更と参照の情報が含まれていないため、\cite{6233415}で提案された操作履歴を用いる変更推薦手法を利用することは出来ない。
 そこで、既存の操作履歴ベースの変更推薦手法の代わりに、既存の改版履歴ベースの変更推薦手法にMylynの操作履歴を適用することで、Mylynの操作履歴が変更推薦に適用できるか否かを検証する（\ref{method_sec}節）。
 
-また、Mylynの操作履歴による変更推薦の効果を検証する際の正解セットを作成するため、Mylynの操作履歴をGitの改版履歴と突合し、MylynのセッションとGitのコミットを紐付ける（\ref{data_sec}）。
+また、Mylynの操作履歴による変更推薦の効果を検証する際の正解セットを作成するため、Mylynの操作履歴をGitの改版履歴と突合し、MylynのセッションとGitのコミットを紐付ける（\ref{data_sec}節）。
 このようにして得られた操作履歴はGitのコミットの時刻を用いて時間の情報が復元され、またコミットに含まれるファイルやメソッドの情報をもとに変更と参照の情報が復元される。
 検証の際は、既存の改版履歴ベースの変更推薦手法に改版履歴を適用する従来の手法を比較対象とし、推薦精度が向上しているかを確認する。
 
@@ -511,7 +512,14 @@ Mylynログに記録される操作の情報は、Mylynのタスク毎に1つの
 それぞれのXMLファイルでは、操作された成果物は時系列が記録されていないが（\ref{date_sec}節参照）、タスクごとに操作された成果物集合が記録されている。
 したがって、複数のMylynログの情報を合わせると、操作された成果物集合のリストを得ることができる。
 これは、Gitの改版履歴に、変更された成果物集合のリストが記録されていることと類似している。
-そのため本研究では、現在までに記録されたMylynログから操作された成果物集合のリストを作成し、既存の改版履歴ベースの変更推薦手法にこのリストを適用することで、Mylynの操作履歴を用いた変更推薦を実現する。
+そのため本研究では、現在までに記録されたMylynログから操作された成果物集合のリストを作成し、既存の改版履歴ベースの変更推薦手法にこのリストを適用することで、Mylynの操作履歴を用いた変更推薦を実現する（図\ref{proposal}）。
+
+\begin{figure}[tb]
+  \centering
+  \includegraphics[width = \linewidth]{resource/proposal.pdf}
+  \caption{変更推薦手法の概要}
+  \label{proposal}
+\end{figure}
 
 \subsection{相関ルールの抽出}\label{extractrules_sec}
 Zimmermannらが実装したeROSE\cite{Zimmermann:2005}は、改版履歴から共変更の相関ルール{\it co-change association rules (co-chg)}を抽出し変更推薦を行なうツールである。
@@ -530,10 +538,11 @@ $support$とは全体のトランザクション数のうち$L$および$R$を�
 $\confidence$とは$L$を含むトランザクション数のうち$L$および$R$を含んでいるトランザクションの割合である。
 これらを形式的に表すと以下のようになる。
 \begin{eqnarray}
-  support_{T,L \Ra R} &=& \frac{| L \cup R |}{|T|}\\
-  \confidence_{T,L \Ra R} &=& \frac{| L \cup R |}{|L|}
+  support_{T,L \Ra R} &=& \frac{| L \cup R |}{|T|} \label{support_eqn}\\
+  \confidence_{T,L \Ra R} &=& \frac{| L \cup R |}{|L|}\label{confidence_eqn}
 \end{eqnarray}
-なお、$minsup$については、\cite{Zimmermann:2005}のように全てのトランザクション数に対する割合ではなく、$L$および$R$を含むトランザクション数を利用している研究もある。\cite{Zimmermann:2005}ではこのような数値を{\it minimum support count}と呼んでいる。
+なお、$minsup$については、全てのトランザクション数に対する割合ではなく、$L$および$R$を含むトランザクション数の絶対値を利用している研究もある。
+\cite{Zimmermann:2005}ではこのような数値を{\it minimum support count}と呼んでいる。
 本稿では{\it minimum support count}は使用せず、$minsup$は全トランザクション数に対する相対値を用いる。
 
 eROSEは現在公開されておらず利用することが出来ないため、
@@ -562,17 +571,46 @@ A-prioriアルゴリズムを利用して相関ルールを抽出する際はパ
     &\textrm{where}~score_j = \getScore(rule_j)\nonumber
 \end{eqnarray}
 $\left(r_j,score_j\right)$は成果物と数値の組であり、$r_j$は変更推薦される成果物を、$score_j$は$r_j$のスコアを表す。
+$\getScore(rule_j)$は$rule_j$に基づき$r_j$をランキングするための評価値を返す関数である（後述）。
+最終的に$recom_{Rule}(source)$の各要素$(r_j,score_j)$を$score_j$の高いものから1位、2位、$\dots$とし、成果物$r_j$の変更推薦順位とする。
 
-$\getScore(rule_j)$は$rule_j$に基づき$r_j$をランキングするための評価値を返す関数である。
+$\getScore(rule_j)$について説明する。
+$\confidence$と$support$はどちらも相関ルールの質を表す評価値であり、数値が高いほど、学習セット内において相関ルールが普遍的に成り立つことを表す。
+$\confidence$は相関ルールの左辺のアイテムが含まれるアイテムセットに右辺も含まれる割合を、
+$support$は左辺と右辺の区別なく、両辺のアイテムが含まれるアイテムセットの割合を表す。
+\cite{Zimmermann:2005}では、改版履歴から抽出した相関ルールの足切りにこれらの評価値を利用しており、
+足切りする$support$や$\confidence$を高くするほど、変更推薦を行える回数が減るのと同時に変更推薦の精度が上がることがわかっている。
+操作履歴から抽出した相関ルールについても同様に、$support$や$\confidence$が高い相関ルールを高順位にランキングすることで、変更推薦を行える回数を減らしながら高い精度で変更推薦できると考えられるが、どちらを優先してランキングするとよいかはわかっていない。
+
+
+\begin{figure}[tb]
+  \centering
+  \subfigure[$\confidence$をもとにスコア付けしたとき]{
+    \includegraphics[width = 0.4\textwidth]{resource/ConfidencePlot.pdf}
+    \label{confidence_plot}
+  }
+  \subfigure[$support$をもとにスコア付けしたとき]{
+    \includegraphics[width = 0.4\textwidth]{resource/SupportPlot.pdf}
+    \label{support_plot}
+  }
+  \subfigure[$\confidence*support$をもとにスコア付けしたとき]{
+    \includegraphics[width = 0.4\textwidth]{resource/TimesPlot.pdf}
+    \label{times_plot}
+  }
+  \label{scoring_plot}
+  \caption{各評価値でランキングを行なった時のスコア付けの概略}
+\end{figure}
 本研究では3種類の$\getScore(rule_j)$を提案する。
 \begin{enumerate}
-  \item $rule_j$のconfidence
-  \item $rule_j$のsupport
-  \item $rule_j$のsupport*confidence
+  \item $rule_j$の$\confidence$ （\ref{confidence_eqn}式）
+  \item $rule_j$の$support$ （\ref{support_eqn}式）
+  \item $rule_j$の$support*\confidence$
 \end{enumerate}
-\TODO{confidenceとsupportを使う理由を書く}
+また、3つのランキング方法におけるスコアの分布を図\ref{scoring_plot}に示す。
+図\ref{confidence_plot}及び図\ref{support_plot}はそれぞれ$\confidence$、$support$のみをもとにランキングを行なう。
+図\ref{times_plot}は、$\confidence$と$support$の積をもとにランキングを行なうことで、どちらかが低い場合には低順位に、両方が高い場合に高順位となる。
 
-最終的に$recom_{Rule}(source)$の各要素$(r_j,score_j)$を$score_j$の高いものから1位、2位、$\dots$とし、成果物$r_j$の変更推薦順位とする。
+
 
 この変更推薦手法の基盤は\cite{Zimmermann:2005}で提案されたものである。
 ただし、\cite{Zimmermann:2005}では推薦される成果物をランキングする手法は提案されなかったため、本研究では新しく成果物にスコアをつけランキングを行なうよう手法を拡張した。
@@ -721,7 +759,9 @@ MylynにはEGitと協調してEGitでコミットを行なった際に同時にM
 $\minconf$は0.1から0.9まで0.1刻みで9種類用いた。
 したがって、$minsup$と$\minconf$の組み合わせ数は27通りである。
 
-
+$getScore(rule_j)$（\ref{ranking_sec}節参照）は、
+\ref{rulesize_sec}節および\ref{mainresult_sec}節では$\confidence$を用い、
+\ref{varyscoring_sec}節では$getScore(rule_j)$を変化させて実験を行なう。
 
 \subsection{参照履歴と変更履歴を用いた相関ルールの抽出}
 参照履歴を用いた変更推薦の効果を測定するため、\ref{extractrules_sec}節のように参照履歴と変更履歴の両方から相関ルールを抽出して変更推薦を行なう。
@@ -860,7 +900,7 @@ co-refルールには、490ファイルが含まれており、全体のファ�
 これに対し、ファイルレベルにおいては、2種類の相関ルールはほぼ同数のファイルを含めることができる。
 \end{quote}
 
-\section{$MRR$と$Recall$、$\fmeasure$}
+\section{$MRR$と$Recall$、$\fmeasure$}\label{mainresult_sec}
 \begin{figure}[p]
   \centering
   \includegraphics[width = 0.95\linewidth]{resource/fmeasure_f.pdf}
@@ -1001,6 +1041,9 @@ co-refルールには、490ファイルが含まれており、全体のファ�
 
 メソッドレベルの変更推薦においては、変更すべき成果物の検出割合はファイルレベルの変更推薦の半分以下となった。
 これは、ファイルレベルとくらべ、開発者は機能のメンテナンスを行なう際により多くの関係のないメソッドを参照するため、このような参照行動が操作履歴に記録され、ここから有益でない相関ルールが抽出されてしまったためと考えられる。
+
+\section{スコアリングによる変更推薦精度の変化}\label{varyscoring_sec}
+\TODO{}
 \section{共参照ルールが有効だった変更推薦の例}
 交差検定を実施した際、co-chgの相関ルールでは変更推薦の候補を出力することが出来なかったが、co-refの相関ルールでは正しく変更推薦を行えた場合があった。
 このときの状況について説明する。
