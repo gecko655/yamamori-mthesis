@@ -589,7 +589,7 @@ $support$は左辺と右辺の区別なく、両辺のアイテムが含まれ�
     \includegraphics[width = 0.4\textwidth]{resource/SupportPlot.pdf}
     \label{support_plot}
   }
-  \subfigure[$\confidence*support$をもとにスコア付けしたとき]{
+  \subfigure[$support*\confidence$をもとにスコア付けしたとき]{
     \includegraphics[width = 0.4\textwidth]{resource/TimesPlot.pdf}
     \label{times_plot}
   }
@@ -764,7 +764,7 @@ MylynにはEGitと協調してEGitでコミットを行なった際に同時にM
 \section{実験設定}\label{setting_sec}
 \subsection{実験パラメータ}
 前章（\ref{extractrules_sec}節）で述べたように、LCExtractorに使われているA-prioriアルゴリズムはminimum support（最小支持度, $minsup$）とminimum confidence（最小信頼度, $\minconf$）の2つのパラメータが必要となる。
-また、\ref{ranking_sec}節で述べたように$\getScore(rule_j)$は$\confidence$、$suport$、$\confidence*support$の3通りがある。
+また、\ref{ranking_sec}節で述べたように$\getScore(rule_j)$は$\confidence$、$suport$、$support*\confidence$の3通りがある。
 
 本実験のうち\ref{rulesize_sec}節および\ref{mainresult_sec}節では、
 $\getScore(rule_j)$の種類とは関係なく、操作履歴による変更推薦の効果の検証を行なう。
@@ -772,15 +772,8 @@ $minsup$は0.002, 0.004, 0.006の3種類、
 $\minconf$は0.1から0.9まで0.1刻みで9種類を用いた。
 したがって、$minsup$と$\minconf$の組み合わせ数は27通りである。
 $\getScore(rule_j)$は$\confidence$とした。
+ただし、\ref{varyscoring_sec}節では別のパラメータを用いる。
 
-\ref{varyscoring_sec}節では、
-\ref{rulesize_sec}節および\ref{mainresult_sec}節の結果を考慮し、
-変更推薦を行える回数を維持しながら推薦精度を向上することを目的として、
-$\getScore(rule_j)$を変更することによって変更推薦の精度がどのように変化するかを検証する。
-$minsup$は0.002で固定として、
-$\getScore(rule_j)$は$\confidence$、$suport$、$\confidence*support$の3通りを用いた。
-$\minconf$は0.1から0.9まで0.1刻みで9種類を用いた。
-また、\ref{varyscoring_sec}節で後述する理由によりファイルレベルにおいてのみ実験を行う。
 
 \subsection{参照履歴と変更履歴を用いた相関ルールの抽出}
 参照履歴を用いた変更推薦の効果を測定するため、\ref{extractrules_sec}節のように参照履歴と変更履歴の両方から相関ルールを抽出して変更推薦を行なう。
@@ -1062,6 +1055,15 @@ co-refルールには、490ファイルが含まれており、全体のファ�
 これは、ファイルレベルと比べ、開発者は機能のメンテナンスを行なう際により多くの関係のないメソッドを参照するため、このような参照行動が操作履歴に記録され、ここから有益でない相関ルールが抽出されてしまったためと考えられる。
 
 \section{スコアリングによる変更推薦精度の変化}\label{varyscoring_sec}
+ファイルレベルにおいて操作履歴を利用した変更推薦手法が改版履歴を利用するより効果が高いことが前節までで示された。
+本節では、ファイルレベルでの変更推薦の効果をさらに高めることを目的とし、
+$\getScore(rule_j)$（\ref{ranking_sec}節参照）を変更した時の変更推薦の推薦可能な回数や推薦精度の変化を計測する。
+本実験においては、\ref{mainresult_sec}節の結果を考慮し、
+変更推薦を行える回数を維持しながら推薦精度を向上することを目的とするため、
+$minsup$は0.002で固定として、
+$\minconf$は0.1から0.9まで0.1刻みで9種類を用いた。
+$\getScore(rule_j)$は\ref{ranking_sec}節で述べた$\confidence$、$suport$、$support*\confidence$の3通りを用いた。
+
 \begin{figure}[p]
   \centering
   \includegraphics[width = 0.95\linewidth]{resource/fmeasure_rank_f.pdf}
@@ -1074,7 +1076,14 @@ co-refルールには、490ファイルが含まれており、全体のファ�
   \caption{ランキング方法を変更した時のファイルレベルでの$MRR$と$Recall$の関係}
   \label{f_mrgraph_rank}
 \end{figure}
-$\getScore(rule_j)$（\ref{ranking_sec}節参照）を変更した時の$\fmeasure$を図\ref{f_fmeasure_rank}に、$MRR$と$Recall$の関係を図\ref{f_mrgraph_rank}に、それぞれ示す。
+$\getScore(rule_j)$を変更した時の$\fmeasure$を図\ref{f_fmeasure_rank}に、$MRR$と$Recall$の関係を図\ref{f_mrgraph_rank}に、それぞれ示す。
+
+図\ref{f_fmeasure_rank}から、co-refの相関ルールの$\fmeasure$は$\getScore(rule_j)$が$support*\confidence$のときに最も高く、次いで$support$のとき、$\confidence$のときという順番になっている。
+最大の$fmeasure$は$minsup=0.002,\minconf=0.1$、$\getScore(rule_j)$が$support*\confidence$のときで、0.237であった。
+co-chgの相関ルールの$\fmeasure$は$\getScore(rule_j)$を変化させることにより多少変動があったが、co-refの相関ルールほどの差にはならなかった。
+また、図\ref{f_mrgraph_rank}によれば、co-refの相関ルールの$MRR$は$minsup=0.002,\minconf=0.3$、$\getScore(rule_j)$が$support*\confidence$のとき最大となり、このとき$MRR=0.196,Recall=0.263$であった。
+\ref{mainresult_sec}節の表\ref{results_file_table}から、$Recall\geq 0.1$の条件下では$MRR$の最大値は0.196であり、このとき$Recall=0.143$であったため、$\getScore(rule_j)$を$\confidence$から$support*\confidence$に変えたことにより推薦精度を損なわずに推薦可能な回数を増やしたと言える。
+
 
 
 \section{共参照ルールが有効だった変更推薦の例}
