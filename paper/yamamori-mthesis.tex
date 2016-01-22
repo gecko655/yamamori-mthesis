@@ -433,7 +433,7 @@ Mylynに対して次の3点の拡張を行なうことで、前節で述べた�
 また、Mylynのタスクを活性化した直後の操作イベントは、直前の操作イベントがないため「参照した」扱いとする。
 
 ファイルを保存する前のファイルの内容を取得する必要があるため、ファイルの内容の取得はファイルシステムからではなく、Eclipseのエディターから取得している。
-また、ファイルの比較は変更されたかどうかの2択で良いため、ファイルの内容をJavaのStrint\#hashCode()メソッド\footnote{\url{https://docs.oracle.com/javase/8/docs/api/java/lang/String.html\#hashCode--}}でハッシュ化してから比較して、高速化を図った。
+また、ファイルの比較は変更されたかどうかの2択で良いため、ファイルの内容をJavaのString\#hashCode()メソッド\footnote{\url{https://docs.oracle.com/javase/8/docs/api/java/lang/String.html\#hashCode--}}でハッシュ化してから比較して、高速化を図った。
 
 \subsection{カーソルが成果物の中に入った時刻、出た時刻の情報と、この期間に変更を伴ったかどうかを記録する}
 機能2のうち時刻については、{\it Kind}が"edit"である操作イベントが発生するたびに直前の操作イベントの成果物名を比較し、変化していた場合は、直前の操作イベントの時刻を直前の操作イベントの成果物からカーソルが離れた時刻、今発生した操作イベントの時刻をその成果物にカーソルが入った時刻として記録することで実現する。
@@ -786,7 +786,7 @@ MylynにはEGitと協調してEGitでコミットを行なった際に同時にM
 \section{実験設定}\label{setting_sec}
 \subsection{実験パラメータ}
 前章（\ref{extractrules_sec}節）で述べたように、LCExtractorに使われているA-prioriアルゴリズムはminimum support（最小支持度, $minsup$）とminimum confidence（最小信頼度, $\minconf$）の2つのパラメータが必要となる。
-また、\ref{ranking_sec}節で述べたように$\getScore(rule_j)$は$\confidence$、$suport$、$support*\confidence$の3通りがある。
+また、\ref{ranking_sec}節で述べたように$\getScore(rule_j)$は$\confidence$、$support$、$support*\confidence$の3通りがある。
 
 本実験のうち\ref{rulesize_sec}節および\ref{mainresult_sec}節では、
 $\getScore(rule_j)$の種類とは関係なく、操作履歴による変更推薦の効果の検証を行なう。
@@ -1085,7 +1085,7 @@ $\getScore(rule_j)$（\ref{ranking_sec}節参照）を変更した時の変更�
 変更推薦を行える回数を維持しながら推薦精度を向上することを目的とするため、
 $minsup$は0.002で固定として、
 $\minconf$は0.1から0.9まで0.1刻みで9種類を用いた。
-$\getScore(rule_j)$は\ref{ranking_sec}節で述べた$\confidence$、$suport$、$support*\confidence$の3通りを用いた。
+$\getScore(rule_j)$は\ref{ranking_sec}節で述べた$\confidence$、$support$、$support*\confidence$の3通りを用いた。
 
 \begin{figure}[p]
   \centering
