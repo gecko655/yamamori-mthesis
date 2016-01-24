@@ -455,10 +455,10 @@ MylynログはMylynプラグイン自身の動作に不可欠であるほか、�
 
 {\it DurationList}の形式をEBNF記法\footnote{\url{http://www.cl.cam.ac.uk/~mgk25/iso-14977.pdf}}で以下に示す。
 \begin{verbatim}
-  DurationList = ``[" , { Duration , ``," } , Duration , ``]" ;
-  Duration = Date , ``/" Date , ``/" , Ismodified ;
-  Date = ``(yyyy-MM-dd HH:mm:ss.S zの形式で表現された時刻)" ;
-  Ismodified = ``modified" | ``referred" ;
+  DurationList = "[" , { Duration , "," } , Duration , "]" ;
+  Duration = Date , "/" Date , "/" , Ismodified ;
+  Date = "(yyyy-MM-dd HH:mm:ss.S zの形式で表現された時刻)" ;
+  Ismodified = "modified" | "referred" ;
 \end{verbatim}
 ここで、\texttt{Duration}に含まれる2つの\texttt{Date}のうち、1つ目はカーソルが成果物に入った時刻を、2つ目はカーソルが成果物から出た時刻を表す。
 また、\texttt{DurationList}は\texttt{Duration}を時系列順に並べたものである。
@@ -473,8 +473,8 @@ MylynログはMylynプラグイン自身の動作に不可欠であるほか、�
 なお、このMylynログ全体は付録\ref{mylyn_log_appendix}に掲載する。
 
 \begin{lstlisting}[float, floatplacement=tb, style=normalsize, language=xml, caption=拡張されたMylynによって記録されたMylynログの例（ただしXML上で実体参照に変換された文字はもとに戻している）, label=durationlist_fig]
-<InteractionEvent Delta=``null" EndDate=``2016-01-12 17:03:06.423 JST" Interest=``15.0" Kind=``edit" Navigation=``null" OriginId=``org.eclipse.jdt.ui.CompilationUnitEditor" StartDate=``2016-01-12 16:38:31.648 JST" StructureHandle=``=MylynGitPrediction/src<tkobaya.yamamori.mgprediction.combine{MylynReaderResult.java[MylynReaderResult~ addInteractionSet~QMylynInteractionHistory;~D" StructureKind=``java" NumEvents=``15" CreationCount=``103" DurationList= ``[2016-01-12 16:38:31.648 JST/2016-01-12 16:40:16.482 JST/modified, 2016-01-12 17:02:58.409 JST/2016-01-12 17:03:06.423 JST/modified]"/>
-<InteractionEvent Delta=``null" EndDate=``2016-01-12 16:52:53.826 JST" Interest=``29.0" Kind=``edit" Navigation=``null" OriginId=``org.eclipse.jdt.ui.CompilationUnitEditor" StartDate=``2016-01-12 16:43:09.833 JST" StructureHandle=``= MylynGitPrediction/src<tkobaya.yamamori.mgprediction.combine{SingleFileSet.java[SingleFileSet~putAll~QMap<+QInteger;+QDouble;>;" StructureKind=``java" NumEvents=``29" CreationCount=``157" DurationList=`` [2016-01-12 16:43:09.833 JST/2016-01-12 16:43:11.666 JST/referred, 2016-01-12 16:51:14.131 JST/2016-01-12 16:51:14.131 JST/referred, 2016-01-12 16:51:38.25 JST/2016-01-12 16:52:53.826 JST/modified]"/>
+<InteractionEvent Delta="null" EndDate="2016-01-12 17:03:06.423 JST" Interest="15.0" Kind="edit" Navigation="null" OriginId="org.eclipse.jdt.ui.CompilationUnitEditor" StartDate="2016-01-12 16:38:31.648 JST" StructureHandle="=MylynGitPrediction/src<tkobaya.yamamori.mgprediction.combine{MylynReaderResult.java[MylynReaderResult~ addInteractionSet~QMylynInteractionHistory;~D" StructureKind="java" NumEvents="15" CreationCount="103" DurationList= "[2016-01-12 16:38:31.648 JST/2016-01-12 16:40:16.482 JST/modified, 2016-01-12 17:02:58.409 JST/2016-01-12 17:03:06.423 JST/modified]"/>
+<InteractionEvent Delta="null" EndDate="2016-01-12 16:52:53.826 JST" Interest="29.0" Kind="edit" Navigation="null" OriginId="org.eclipse.jdt.ui.CompilationUnitEditor" StartDate="2016-01-12 16:43:09.833 JST" StructureHandle="= MylynGitPrediction/src<tkobaya.yamamori.mgprediction.combine{SingleFileSet.java[SingleFileSet~putAll~QMap<+QInteger;+QDouble;>;" StructureKind="java" NumEvents="29" CreationCount="157" DurationList=" [2016-01-12 16:43:09.833 JST/2016-01-12 16:43:11.666 JST/referred, 2016-01-12 16:51:14.131 JST/2016-01-12 16:51:14.131 JST/referred, 2016-01-12 16:51:38.25 JST/2016-01-12 16:52:53.826 JST/modified]"/>
 \end{lstlisting}
 \begin{comment}
 ]}]} //おまじない
